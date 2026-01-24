@@ -6,11 +6,11 @@
 import BaseEntity from './baseEntity.js';
 
 class Projectile extends BaseEntity {
-    constructor(x, y, target, damage = 10, speed = 5) {
-        super(x, y, 8, 8);
+    constructor(x, y, target, damage = 10) {
+        super(x, y, 5, 5);
         this.target = target;
         this.damage = damage;
-        this.speed = speed;
+        this.speed = 8;
         this.active = true;
     }
 
@@ -20,37 +20,29 @@ class Projectile extends BaseEntity {
             return;
         }
 
-        // Move towards target
+        // Calculate direction to target
         const dx = this.target.x - this.x;
         const dy = this.target.y - this.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
-
-        if (distance < this.speed * deltaTime * 0.01) {
-            // Hit target
-            this.hitTarget();
-            this.active = false;
-            return;
-        }
-
+        
+        // Normalize direction
+        const directionX = dx / distance;
+        const directionY = dy / distance;
+        
         // Move towards target
-        const moveX = (dx / distance) * this.speed * deltaTime * 0.01;
-        const moveY = (dy / distance) * this.speed * deltaTime * 0.01;
-        this.x += moveX;
-        this.y += moveY;
-    }
-
-    hitTarget() {
-        if (this.target && this.target.active) {
+        this.x += directionX * this.speed * deltaTime;
+        this.y += directionY * this.speed * deltaTime;
+        
+        // Check collision with target
+        if (distance < 10) { // Threshold for reaching target
             this.target.takeDamage(this.damage);
+            this.active = false;
         }
     }
 
     render(renderer) {
-        // Draw projectile as a yellow circle
-        renderer.ctx.fillStyle = 'yellow';
-        renderer.ctx.beginPath();
-        renderer.ctx.arc(this.x, this.y, this.width/2, 0, Math.PI * 2);
-        renderer.ctx.fill();
+        // Draw projectile as a small yellow circle
+        renderer.drawCircle(this.x, this.y, 3, 'yellow');
     }
 }
 
