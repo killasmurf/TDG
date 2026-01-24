@@ -1,0 +1,12 @@
+{
+  "name": "tower-defense-game",
+  "version": "0.1.0",
+  "description": "Cross-platform tower defense game",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node src/index.js"
+  },
+  "author": "Game Developer",
+  "license": "MIT"
+}
