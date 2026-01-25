@@ -29,6 +29,30 @@ class Renderer {
         this.ctx.font = `${fontSize}px Arial`;
         this.ctx.fillText(text, x, y);
     }
+
+    drawCircle(x, y, radius, color) {
+        this.ctx.fillStyle = color;
+        this.ctx.beginPath();
+        this.ctx.arc(x, y, radius, 0, Math.PI * 2);
+        this.ctx.fill();
+    }
+
+    drawCircleOutline(x, y, radius, color, lineWidth = 1) {
+        this.ctx.strokeStyle = color;
+        this.ctx.lineWidth = lineWidth;
+        this.ctx.beginPath();
+        this.ctx.arc(x, y, radius, 0, Math.PI * 2);
+        this.ctx.stroke();
+    }
+
+    drawLine(x1, y1, x2, y2, color, lineWidth = 1) {
+        this.ctx.strokeStyle = color;
+        this.ctx.lineWidth = lineWidth;
+        this.ctx.beginPath();
+        this.ctx.moveTo(x1, y1);
+        this.ctx.lineTo(x2, y2);
+        this.ctx.stroke();
+    }
 }
 
 export default Renderer;
