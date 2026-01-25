@@ -23,8 +23,58 @@ class Enemy extends BaseEntity {
         this.maxHealth = config.health;
     }
 
+    /**
+     * Initialize enemy with specific type and path
+     * @param {Object} params - Initialization parameters
+     * @param {string} params.type - Enemy type ('basic', 'fast', 'tank')
+     * @param {Array} params.path - Path waypoints for enemy to follow
+     * @param {number} params.x - Starting x position
+     * @param {number} params.y - Starting y position
+     */
+    initialize(params = {}) {
+        const type = params.type || 'basic';
+        const config = Config.enemy[type] || Config.enemy.basic;
+
+        // Set type-specific properties
+        this.type = type;
+        this.speed = config.speed;
+        this.health = config.health;
+        this.maxHealth = config.health;
+        this.damage = config.damage;
+        this.reward = config.reward;
+        this.color = config.color;
+
+        // Set path
+        this.path = params.path || [];
+        this.currentPathIndex = 0;
+
+        // Call parent initialize for position and spawn hook
+        super.initialize({
+            x: params.x,
+            y: params.y,
+            health: config.health
+        });
+    }
+
     setPath(path) {
         this.path = path;
+        this.currentPathIndex = 0;
+    }
+
+    /**
+     * Lifecycle hook: Called when enemy spawns
+     */
+    onSpawn() {
+        // Reset path progress when spawned
+        this.currentPathIndex = 0;
+    }
+
+    /**
+     * Lifecycle hook: Called when enemy is deactivated
+     */
+    onDeactivate() {
+        // Clear references for garbage collection
+        this.path = [];
         this.currentPathIndex = 0;
     }
 

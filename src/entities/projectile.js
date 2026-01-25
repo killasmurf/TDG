@@ -17,6 +17,42 @@ class Projectile extends BaseEntity {
         this.color = Config.projectile.color;
     }
 
+    /**
+     * Initialize projectile with target and damage
+     * @param {Object} params - Initialization parameters
+     * @param {number} params.x - Starting x position
+     * @param {number} params.y - Starting y position
+     * @param {BaseEntity} params.target - Target enemy entity
+     * @param {number} params.damage - Damage to deal
+     */
+    initialize(params = {}) {
+        this.target = params.target || null;
+        this.damage = params.damage || Config.projectile.damage;
+        this.speed = Config.projectile.speed;
+        this.color = Config.projectile.color;
+
+        // Call parent initialize for position and spawn hook
+        super.initialize({
+            x: params.x,
+            y: params.y
+        });
+    }
+
+    /**
+     * Lifecycle hook: Called when projectile spawns
+     */
+    onSpawn() {
+        // Projectile is ready to track target
+    }
+
+    /**
+     * Lifecycle hook: Called when projectile is deactivated
+     */
+    onDeactivate() {
+        // Clear target reference for garbage collection
+        this.target = null;
+    }
+
     update(deltaTime) {
         if (!this.target || !this.target.active) {
             this.active = false;

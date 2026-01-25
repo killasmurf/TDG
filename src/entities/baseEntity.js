@@ -12,6 +12,50 @@ class BaseEntity {
         this.health = 100;
         this.maxHealth = 100;
         this.active = true;
+        this.pooled = false; // Track if entity is in object pool
+    }
+
+    /**
+     * Initialize entity with specific parameters
+     * Called when entity is first created or retrieved from pool
+     * Override in subclasses to set entity-specific properties
+     * @param {Object} params - Initialization parameters
+     */
+    initialize(params = {}) {
+        // Base initialization - override in subclasses
+        if (params.x !== undefined) this.x = params.x;
+        if (params.y !== undefined) this.y = params.y;
+        if (params.health !== undefined) {
+            this.health = params.health;
+            this.maxHealth = params.health;
+        }
+        this.active = true;
+        this.pooled = false;
+        this.onSpawn();
+    }
+
+    /**
+     * Lifecycle hook: Called when entity is spawned/activated
+     * Override in subclasses for spawn-specific logic
+     */
+    onSpawn() {
+        // Override in subclasses
+    }
+
+    /**
+     * Lifecycle hook: Called when entity is deactivated/returned to pool
+     * Override in subclasses for cleanup logic
+     */
+    onDeactivate() {
+        // Override in subclasses
+    }
+
+    /**
+     * Lifecycle hook: Called when entity is permanently destroyed
+     * Override in subclasses for final cleanup
+     */
+    onDestroy() {
+        // Override in subclasses
     }
 
     update(deltaTime) {
@@ -109,12 +153,25 @@ class BaseEntity {
 
     /**
      * Reset entity to default state (for object pooling)
+     * Calls onDeactivate hook for cleanup
      */
     reset() {
+        this.onDeactivate();
         this.x = 0;
         this.y = 0;
         this.health = this.maxHealth;
         this.active = true;
+        this.pooled = true;
+    }
+
+    /**
+     * Permanently destroy this entity
+     * Calls onDestroy hook for final cleanup
+     */
+    destroy() {
+        this.onDestroy();
+        this.active = false;
+        this.pooled = false;
     }
 
     /**

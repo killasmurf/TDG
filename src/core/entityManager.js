@@ -32,6 +32,7 @@ class ObjectPool {
 
         if (this.pool.length > 0) {
             obj = this.pool.pop();
+            obj.pooled = false; // Mark as no longer pooled
         } else {
             obj = this.factory();
         }
@@ -42,11 +43,12 @@ class ObjectPool {
 
     /**
      * Return an object to the pool
+     * Calls reset() method which triggers onDeactivate() lifecycle hook
      * @param {Object} obj
      */
     release(obj) {
         if (obj.reset) {
-            obj.reset();
+            obj.reset(); // This now calls onDeactivate() lifecycle hook
         }
         this.pool.push(obj);
         this.activeCount--;
@@ -184,7 +186,7 @@ class EntityManager {
      */
     spawnTower(type, x, y) {
         const tower = new Tower(x, y, type);
-        tower.entityManager = this;
+        // Removed: tower.entityManager = this; (circular reference removed)
         this.towers.push(tower);
         return tower;
     }
@@ -198,13 +200,13 @@ class EntityManager {
     spawnEnemy(type, path) {
         const enemy = this.enemyPool.acquire();
 
-        // Reset enemy with correct type
-        enemy.reset(type);
-
-        // Set position from path start
-        enemy.x = path[0]?.x || 0;
-        enemy.y = path[0]?.y || 0;
-        enemy.setPath([...path]); // Clone path
+        // Use new initialize() method instead of manual property setting
+        enemy.initialize({
+            type: type,
+            path: [...path], // Clone path
+            x: path[0]?.x || 0,
+            y: path[0]?.y || 0
+        });
 
         this.enemies.push(enemy);
         return enemy;
@@ -219,13 +221,13 @@ class EntityManager {
     spawnProjectile(tower, target) {
         const projectile = this.projectilePool.acquire();
 
-        // Initialize projectile
-        projectile.x = tower.x + tower.width / 2;
-        projectile.y = tower.y + tower.height / 2;
-        projectile.target = target;
-        projectile.damage = tower.damage;
-        projectile.speed = tower.projectileSpeed;
-        projectile.active = true;
+        // Use new initialize() method instead of manual property setting
+        projectile.initialize({
+            x: tower.x + tower.width / 2,
+            y: tower.y + tower.height / 2,
+            target: target,
+            damage: tower.damage
+        });
 
         this.projectiles.push(projectile);
         return projectile;

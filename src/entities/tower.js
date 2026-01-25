@@ -26,8 +26,57 @@ class Tower extends BaseEntity {
         this.entityManager = null;
     }
 
+    /**
+     * Initialize tower with specific type and position
+     * @param {Object} params - Initialization parameters
+     * @param {string} params.type - Tower type ('basic', 'sniper', 'rapid')
+     * @param {number} params.x - Tower x position
+     * @param {number} params.y - Tower y position
+     */
+    initialize(params = {}) {
+        const type = params.type || 'basic';
+        const config = Config.tower[type] || Config.tower.basic;
+
+        // Set type-specific properties
+        this.type = type;
+        this.damage = config.damage;
+        this.range = config.range;
+        this.fireRate = config.fireRate;
+        this.fireTimer = 0;
+        this.projectileSpeed = config.projectileSpeed;
+        this.color = config.color;
+        this.cost = config.cost;
+
+        // Clear target reference
+        this.target = null;
+
+        // Call parent initialize for position and spawn hook
+        super.initialize({
+            x: params.x,
+            y: params.y
+        });
+    }
+
     setTarget(target) {
         this.target = target;
+    }
+
+    /**
+     * Lifecycle hook: Called when tower spawns
+     */
+    onSpawn() {
+        // Reset firing timer when spawned
+        this.fireTimer = 0;
+        this.target = null;
+    }
+
+    /**
+     * Lifecycle hook: Called when tower is deactivated
+     */
+    onDeactivate() {
+        // Clear references for garbage collection
+        this.target = null;
+        this.entityManager = null;
     }
 
     update(deltaTime, entityManager) {
