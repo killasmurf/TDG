@@ -123,12 +123,20 @@ class Enemy extends BaseEntity {
 
     /**
      * Reset enemy for object pooling
+     * @param {string} type - Enemy type to reset to
      */
-    reset() {
+    reset(type = 'basic') {
+        const config = Config.enemy[type] || Config.enemy.basic;
+
         this.x = 0;
         this.y = 0;
-        this.health = 100;
-        this.maxHealth = 100;
+        this.type = type;
+        this.health = config.health;
+        this.maxHealth = config.health;
+        this.speed = config.speed;
+        this.damage = config.damage;
+        this.reward = config.reward;
+        this.color = config.color;
         this.active = true;
         this.path = [];
         this.currentPathIndex = 0;

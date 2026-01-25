@@ -16,7 +16,7 @@ class Tower extends BaseEntity {
         this.damage = config.damage;
         this.range = config.range;
         this.fireRate = config.fireRate; // milliseconds
-        this.lastFired = 0;
+        this.fireTimer = 0; // Accumulator for deltaTime-based firing
         this.target = null;
         this.projectileSpeed = config.projectileSpeed;
         this.color = config.color;
@@ -31,7 +31,8 @@ class Tower extends BaseEntity {
     }
 
     update(deltaTime, entityManager) {
-        const currentTime = Date.now();
+        // Accumulate time for fire rate (deltaTime is in seconds, fireRate is in ms)
+        this.fireTimer += deltaTime * 1000;
 
         // Check if tower has a target in range
         if (this.target && this.target.active) {
@@ -42,9 +43,9 @@ class Tower extends BaseEntity {
 
             // If in range, shoot at target
             if (distance <= this.range) {
-                if (currentTime - this.lastFired > this.fireRate) {
+                if (this.fireTimer >= this.fireRate) {
                     this.fire(entityManager);
-                    this.lastFired = currentTime;
+                    this.fireTimer = 0; // Reset timer
                 }
             } else {
                 // Target out of range

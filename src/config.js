@@ -88,6 +88,7 @@ const Config = {
         width: 5,
         height: 5,
         speed: 8,
+        damage: 10, // Default damage, overridden by tower damage
         hitThreshold: 10,
         color: 'yellow'
     },

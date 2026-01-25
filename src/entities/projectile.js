@@ -7,7 +7,7 @@ import BaseEntity from './baseEntity.js';
 import Config from '../config.js';
 
 class Projectile extends BaseEntity {
-    constructor(x, y, target, damage = Config.projectile.speed) {
+    constructor(x, y, target, damage = Config.projectile.damage) {
         super(x, y, Config.projectile.width, Config.projectile.height);
 
         this.target = target;
@@ -62,7 +62,7 @@ class Projectile extends BaseEntity {
         this.x = 0;
         this.y = 0;
         this.target = null;
-        this.damage = Config.projectile.speed;
+        this.damage = Config.projectile.damage;
         this.speed = Config.projectile.speed;
         this.active = true;
     }

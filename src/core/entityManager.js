@@ -197,22 +197,13 @@ class EntityManager {
      */
     spawnEnemy(type, path) {
         const enemy = this.enemyPool.acquire();
-        const config = Config.enemy[type] || Config.enemy.basic;
 
-        // Initialize/reset enemy with new values
+        // Reset enemy with correct type
+        enemy.reset(type);
+
+        // Set position from path start
         enemy.x = path[0]?.x || 0;
         enemy.y = path[0]?.y || 0;
-        enemy.width = config.width;
-        enemy.height = config.height;
-        enemy.health = config.health;
-        enemy.maxHealth = config.health;
-        enemy.speed = config.speed;
-        enemy.damage = config.damage;
-        enemy.reward = config.reward;
-        enemy.color = config.color;
-        enemy.type = type;
-        enemy.active = true;
-        enemy.currentPathIndex = 0;
         enemy.setPath([...path]); // Clone path
 
         this.enemies.push(enemy);
