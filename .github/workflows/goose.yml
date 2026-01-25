@@ -11,11 +11,6 @@ contents: write
 pull-requests: write
 issues: write
 
-env:
-PROVIDER_API_KEY: ${{ secrets.REPLACE_WITH_PROVIDER_API_KEY }}
-PR_NUMBER: ${{ github.event.pull_request.number }}
-GH_TOKEN: ${{ github.token }}
-
 jobs:
 goose-comment:
    name: goose Comment
