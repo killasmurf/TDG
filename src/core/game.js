@@ -176,15 +176,31 @@ class Game extends GameLoop {
     placeTower(x, y) {
         const towerConfig = Config.tower[this.selectedTowerType];
 
-        if (!towerConfig) return;
+        console.log('💰 Attempting tower placement:', {
+            type: this.selectedTowerType,
+            cost: towerConfig?.cost,
+            currentMoney: this.money,
+            position: { x, y }
+        });
+
+        if (!towerConfig) {
+            console.warn('⚠️ No tower config found for:', this.selectedTowerType);
+            return;
+        }
 
         if (this.money >= towerConfig.cost) {
             // Check if position is valid (not on path, not overlapping)
             if (this.isValidTowerPosition(x, y)) {
                 this.entityManager.spawnTower(this.selectedTowerType, x, y);
+                const previousMoney = this.money;
                 this.money -= towerConfig.cost;
+                console.log(`✅ Tower placed! Money: $${previousMoney} → $${this.money}`);
                 this.audio.play('towerPlace');
+            } else {
+                console.warn('❌ Invalid tower position (too close to path or other tower)');
             }
+        } else {
+            console.warn(`❌ Not enough money! Need $${towerConfig.cost}, have $${this.money}`);
         }
 
         // Deselect tower after placement
@@ -246,8 +262,14 @@ class Game extends GameLoop {
     }
 
     enemyReachedEnd(enemy) {
+        console.log('🏁 Enemy reached end!', {
+            type: enemy.type,
+            damage: enemy.damage,
+            lives: this.lives
+        });
         this.lives -= enemy.damage;
         this.audio.play('lifeLost');
+        console.log(`💔 Lives: ${this.lives + enemy.damage} → ${this.lives}`);
 
         if (this.lives <= 0) {
             this.gameOver();
@@ -255,9 +277,15 @@ class Game extends GameLoop {
     }
 
     enemyKilled(enemy) {
+        console.log('💀 Enemy killed!', {
+            type: enemy.type,
+            reward: enemy.reward,
+            money: this.money
+        });
         this.money += enemy.reward;
         this.score += enemy.reward * 10;
         this.audio.play('enemyDeath');
+        console.log(`💰 Money: $${this.money - enemy.reward} → $${this.money}`);
     }
 
     gameOver() {

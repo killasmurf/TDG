@@ -24,14 +24,17 @@ class GameLoop {
 
     gameLoop(currentTime) {
         if (!this.isRunning) return;
-        
-        // Calculate delta time
-        this.deltaTime = currentTime - this.lastTime;
+
+        // Calculate delta time in milliseconds
+        const deltaTimeMs = currentTime - this.lastTime;
         this.lastTime = currentTime;
+
+        // Convert to seconds for physics calculations
+        this.deltaTime = deltaTimeMs / 1000;
 
         // Update game logic
         this.update(this.deltaTime);
-        
+
         // Render game
         this.render();
 

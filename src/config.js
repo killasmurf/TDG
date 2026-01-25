@@ -26,7 +26,7 @@ const Config = {
             damage: 10,
             range: 100,
             fireRate: 1000,
-            projectileSpeed: 5,
+            projectileSpeed: 300, // pixels per second
             cost: 50,
             color: 'blue'
         },
@@ -36,7 +36,7 @@ const Config = {
             damage: 50,
             range: 200,
             fireRate: 2000,
-            projectileSpeed: 10,
+            projectileSpeed: 500, // pixels per second
             cost: 100,
             color: 'darkblue'
         },
@@ -46,7 +46,7 @@ const Config = {
             damage: 5,
             range: 80,
             fireRate: 200,
-            projectileSpeed: 8,
+            projectileSpeed: 400, // pixels per second
             cost: 75,
             color: 'cyan'
         }
@@ -58,7 +58,7 @@ const Config = {
             width: 30,
             height: 30,
             health: 100,
-            speed: 2,
+            speed: 100, // pixels per second
             damage: 10,
             reward: 10,
             color: 'red'
@@ -67,7 +67,7 @@ const Config = {
             width: 20,
             height: 20,
             health: 50,
-            speed: 4,
+            speed: 150, // pixels per second
             damage: 5,
             reward: 15,
             color: 'orange'
@@ -76,7 +76,7 @@ const Config = {
             width: 40,
             height: 40,
             health: 300,
-            speed: 1,
+            speed: 60, // pixels per second
             damage: 20,
             reward: 30,
             color: 'darkred'
@@ -87,7 +87,7 @@ const Config = {
     projectile: {
         width: 5,
         height: 5,
-        speed: 8,
+        speed: 300, // pixels per second (default, overridden by tower)
         damage: 10, // Default damage, overridden by tower damage
         hitThreshold: 10,
         color: 'yellow'
@@ -111,7 +111,7 @@ const Config = {
 
     // Path settings
     path: {
-        waypointThreshold: 5
+        waypointThreshold: 10 // Distance to waypoint to consider "reached"
     },
 
     // Audio settings

@@ -113,6 +113,7 @@ class Enemy extends BaseEntity {
 
         // Check if reached end of path
         if (this.currentPathIndex >= this.path.length) {
+            console.log('🛑 Enemy at end index already, deactivating:', this.id);
             this.active = false;
             return;
         }
@@ -128,9 +129,13 @@ class Enemy extends BaseEntity {
         // Avoid division by zero
         if (distance < Config.path.waypointThreshold) {
             this.currentPathIndex++;
+            console.log(`📍 Enemy reached waypoint ${this.currentPathIndex}/${this.path.length}`, {
+                position: { x: this.x, y: this.y }
+            });
 
             // If reached end of path, enemy is destroyed (reached base)
             if (this.currentPathIndex >= this.path.length) {
+                console.log('🏁 Enemy reached END OF PATH! Emitting event...');
                 this.active = false;
                 this.events.emit(GameEvents.ENEMY_REACHED_END, {
                     enemy: this,
