@@ -5,6 +5,7 @@
 
 import BaseEntity from './baseEntity.js';
 import Config from '../config.js';
+import { GameEvents } from '../core/EventEmitter.js';
 
 class Projectile extends BaseEntity {
     constructor(x, y, target, damage = Config.projectile.damage) {
@@ -55,6 +56,14 @@ class Projectile extends BaseEntity {
 
     update(deltaTime) {
         if (!this.target || !this.target.active) {
+            // Emit missed event if target becomes invalid
+            if (this.active) {
+                this.events.emit(GameEvents.PROJECTILE_MISSED, {
+                    projectile: this,
+                    reason: this.target ? 'target_inactive' : 'no_target',
+                    position: { x: this.x, y: this.y }
+                });
+            }
             this.active = false;
             return;
         }
@@ -70,6 +79,15 @@ class Projectile extends BaseEntity {
         // Check collision with target
         if (distance < Config.projectile.hitThreshold) {
             this.target.takeDamage(this.damage);
+
+            // Emit hit event
+            this.events.emit(GameEvents.PROJECTILE_HIT, {
+                projectile: this,
+                target: this.target,
+                damage: this.damage,
+                position: { x: this.x, y: this.y }
+            });
+
             this.active = false;
             return;
         }

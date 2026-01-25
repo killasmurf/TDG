@@ -7,6 +7,7 @@ import Tower from '../entities/tower.js';
 import Enemy from '../entities/enemy.js';
 import Projectile from '../entities/projectile.js';
 import Config from '../config.js';
+import { gameEvents, GameEvents } from './EventEmitter.js';
 
 /**
  * Object Pool for entity recycling
@@ -95,9 +96,41 @@ class EntityManager {
         this.enemyPool = new ObjectPool(() => new Enemy(0, 0), 50);
         this.projectilePool = new ObjectPool(() => new Projectile(0, 0, null), 100);
 
-        // Callbacks
-        this.onEnemyKilled = null;
-        this.onEnemyReachedEnd = null;
+        // Reference to global event emitter
+        this.events = gameEvents;
+
+        // Set up internal event listeners for entity cleanup
+        this.setupEventListeners();
+    }
+
+    /**
+     * Set up event listeners for entity management
+     * INTERNAL USE ONLY - Game logic should subscribe to events directly
+     */
+    setupEventListeners() {
+        // Listen for enemy events (for internal entity management only)
+        // External systems (like Game) should subscribe to these events directly
+        // This just handles internal cleanup/tracking if needed
+    }
+
+    /**
+     * Subscribe to game events
+     * Convenience method for external systems to subscribe to events
+     * @param {string} eventType - Event type from GameEvents
+     * @param {Function} callback - Callback function
+     * @param {Object} context - Optional context to bind callback to
+     */
+    on(eventType, callback, context = null) {
+        this.events.on(eventType, callback, context);
+    }
+
+    /**
+     * Unsubscribe from game events
+     * @param {string} eventType - Event type
+     * @param {Function} callback - Callback to remove
+     */
+    off(eventType, callback) {
+        this.events.off(eventType, callback);
     }
 
     /**
@@ -254,20 +287,26 @@ class EntityManager {
     }
 
     /**
-     * Handle enemy reaching end of path
+     * @deprecated Use event system instead: gameEvents.on(GameEvents.ENEMY_REACHED_END, callback)
+     * Handle enemy reaching end of path (kept for backward compatibility)
      * @param {Enemy} enemy
      */
     handleEnemyReachedEnd(enemy) {
+        // Events are now emitted by Enemy class directly
+        // This method kept for backward compatibility only
         if (this.game && this.game.enemyReachedEnd) {
             this.game.enemyReachedEnd(enemy);
         }
     }
 
     /**
-     * Handle enemy being killed
+     * @deprecated Use event system instead: gameEvents.on(GameEvents.ENEMY_KILLED, callback)
+     * Handle enemy being killed (kept for backward compatibility)
      * @param {Enemy} enemy
      */
     handleEnemyKilled(enemy) {
+        // Events are now emitted by Enemy class directly
+        // This method kept for backward compatibility only
         if (this.game && this.game.enemyKilled) {
             this.game.enemyKilled(enemy);
         }

@@ -5,6 +5,7 @@
 
 import BaseEntity from './baseEntity.js';
 import Config from '../config.js';
+import { GameEvents } from '../core/EventEmitter.js';
 
 class Tower extends BaseEntity {
     constructor(x, y, type = 'basic') {
@@ -58,7 +59,17 @@ class Tower extends BaseEntity {
     }
 
     setTarget(target) {
+        const hadTarget = this.target !== null;
         this.target = target;
+
+        // Emit target acquired event if newly targeted
+        if (!hadTarget && target !== null) {
+            this.events.emit(GameEvents.TOWER_TARGET_ACQUIRED, {
+                tower: this,
+                target: target,
+                position: { x: this.x, y: this.y }
+            });
+        }
     }
 
     /**
@@ -98,11 +109,25 @@ class Tower extends BaseEntity {
                 }
             } else {
                 // Target out of range
+                const lostTarget = this.target;
                 this.target = null;
+                this.events.emit(GameEvents.TOWER_TARGET_LOST, {
+                    tower: this,
+                    previousTarget: lostTarget,
+                    reason: 'out_of_range'
+                });
             }
         } else {
             // No valid target
-            this.target = null;
+            if (this.target !== null) {
+                const lostTarget = this.target;
+                this.target = null;
+                this.events.emit(GameEvents.TOWER_TARGET_LOST, {
+                    tower: this,
+                    previousTarget: lostTarget,
+                    reason: 'target_inactive'
+                });
+            }
         }
     }
 
@@ -111,6 +136,14 @@ class Tower extends BaseEntity {
 
         // Spawn projectile through entity manager
         entityManager.spawnProjectile(this, this.target);
+
+        // Emit tower fired event
+        this.events.emit(GameEvents.TOWER_FIRED, {
+            tower: this,
+            target: this.target,
+            damage: this.damage,
+            position: { x: this.x, y: this.y }
+        });
     }
 
     render(renderer) {

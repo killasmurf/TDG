@@ -5,6 +5,7 @@
 
 import BaseEntity from './baseEntity.js';
 import Config from '../config.js';
+import { GameEvents } from '../core/EventEmitter.js';
 
 class Enemy extends BaseEntity {
     constructor(x, y, type = 'basic') {
@@ -78,6 +79,32 @@ class Enemy extends BaseEntity {
         this.currentPathIndex = 0;
     }
 
+    /**
+     * Override takeDamage to emit events
+     */
+    takeDamage(damage) {
+        const previousHealth = this.health;
+        super.takeDamage(damage);
+
+        // Emit damage event
+        this.events.emit(GameEvents.ENEMY_DAMAGED, {
+            enemy: this,
+            damage: damage,
+            previousHealth: previousHealth,
+            currentHealth: this.health
+        });
+
+        // Emit killed event if health reaches 0
+        if (this.health <= 0 && previousHealth > 0) {
+            this.events.emit(GameEvents.ENEMY_KILLED, {
+                enemy: this,
+                type: this.type,
+                reward: this.reward,
+                position: { x: this.x, y: this.y }
+            });
+        }
+    }
+
     update(deltaTime) {
         // Check if enemy has a path to follow
         if (this.path.length === 0 || !this.active) {
@@ -105,6 +132,12 @@ class Enemy extends BaseEntity {
             // If reached end of path, enemy is destroyed (reached base)
             if (this.currentPathIndex >= this.path.length) {
                 this.active = false;
+                this.events.emit(GameEvents.ENEMY_REACHED_END, {
+                    enemy: this,
+                    type: this.type,
+                    damage: this.damage,
+                    position: { x: this.x, y: this.y }
+                });
             }
             return;
         }

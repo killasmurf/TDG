@@ -1,3 +1,5 @@
+import { gameEvents } from '../core/EventEmitter.js';
+
 /**
  * Base Entity Class
  * All game entities should extend this class
@@ -13,6 +15,7 @@ class BaseEntity {
         this.maxHealth = 100;
         this.active = true;
         this.pooled = false; // Track if entity is in object pool
+        this.events = gameEvents; // Global event emitter for entity communication
     }
 
     /**
