@@ -43,8 +43,8 @@ goose-comment:
         run: |
            mkdir -p ~/.config/goose
            cat <<EOF > ~/.config/goose/config.yaml
-           GOOSE_PROVIDER: REPLACE_WITH_PROVIDER
-           GOOSE_MODEL: REPLACE_WITH_MODEL
+           GOOSE_PROVIDER: Ollama
+           GOOSE_MODEL: Gwen3-coder:30b
            keyring: false
            EOF
 
