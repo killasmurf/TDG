@@ -1,55 +1,29 @@
-/**
- * Tower Defense Game - Main Entry Point
- * Initializes and starts the game
- */
+// src/main.js (excerpt)
 
-import Game from './core/game.js';
+import WaveManager from './core/waveManager.js';
+import EntityManager from './core/entityManager.js';
 import Config from './config.js';
 
-// Global game instance
-let game = null;
+const entityManager = new EntityManager();
+const waveData = require('../data/waves.json');
+const waveManager = new WaveManager(entityManager, waveData, () => {
+    console.log('Wave complete hook');
+});
 
-/**
- * Initialize and start the game
- */
-function init() {
-    console.log('Tower Defense Game v0.1.0');
-    console.log('Initializing...');
+// Attach to game (assume game object exists)
+const game = new Game(entityManager, waveManager);
 
-    // Create game instance
-    game = new Game(Config.canvas.id);
+// Start the first wave automatically
+waveManager.startNextWave();
 
-    // Initialize game systems
-    game.init();
+// Button
+document.getElementById('start-wave').addEventListener('click', () => {
+    waveManager.startNextWave();
+});
 
-    // Setup click handler for starting game from menu
-    const canvas = document.getElementById(Config.canvas.id);
-
-    canvas.addEventListener('click', () => {
-        if (game.state === 'menu') {
-            game.audio.init(); // Initialize audio on first user interaction
-            game.startGame();
-        }
-    });
-
-    // Initial render to show menu
-    game.render();
-
-    console.log('Game initialized. Click to start!');
-
-    // Expose game instance for debugging
-    window.game = game;
+// Update loop
+function loop(deltaTime) {
+    waveManager.update(deltaTime);
+    entityManager.update(deltaTime);
+    // ... rendering
 }
-
-/**
- * Wait for DOM to be ready
- */
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-} else {
-    init();
-}
-
-// Export for module usage
-export { game };
-export default init;
