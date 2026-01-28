@@ -1,30 +1,19 @@
-import Config from '../config.js';
-
-/**
- * WaveManager
- * Handles loading waves, spawning enemies over time, and tracking wave progress.
- */
+// src/core/waveManager.js
 export default class WaveManager {
-    /**
-     * @param {EntityManager} entityManager - Reference to the game entity manager.
-     * @param {Object[]} waves - Array of wave definitions.
-     * @param {Function} onWaveComplete - Optional callback when a wave finishes.
-     */
     constructor(entityManager, waves, onWaveComplete) {
         this.entityManager = entityManager;
         this.waves = waves;
         this.currentWaveIndex = 0;
         this.isWaveActive = false;
         this.spawnTimer = 0;
-        this.spawnCounts = {}; // per-type spawn counter
+        this.spawnCounts = {};
         this.enemiesSpawned = 0;
         this.enemiesRemaining = 0;
         this.onWaveComplete = onWaveComplete;
+        this.enemyKilledListener = null;
+        this.enemyReachedEndListener = null;
     }
 
-    /**
-     * Starts the next wave if one is available.
-     */
     startNextWave() {
         if (this.currentWaveIndex >= this.waves.length) {
             console.log('All waves completed!');
@@ -39,14 +28,23 @@ export default class WaveManager {
         this.isWaveActive = true;
         this.spawnTimer = 0;
         this.spawnCounts = {};
+        // Attach listeners to track enemies
+        if (!this.enemyKilledListener) {
+            this.enemyKilledListener = () => {
+                this.enemiesRemaining = Math.max(0, this.enemiesRemaining - 1);
+            };
+            this.entityManager.on('ENEMY_KILLED', this.enemyKilledListener);
+        }
+        if (!this.enemyReachedEndListener) {
+            this.enemyReachedEndListener = () => {
+                this.enemiesRemaining = Math.max(0, this.enemiesRemaining - 1);
+            };
+            this.entityManager.on('ENEMY_REACHED_END', this.enemyReachedEndListener);
+        }
         console.log(`Starting wave ${this.currentWaveIndex + 1}`);
         return true;
     }
 
-    /**
-     * Updates the wave manager each frame.
-     * @param {number} deltaTime - Time elapsed in milliseconds.
-     */
     update(deltaTime) {
         if (!this.isWaveActive) return;
 
@@ -76,13 +74,18 @@ export default class WaveManager {
             this.currentWaveIndex++;
             console.log('Wave completed.');
             this.onWaveComplete?.();
+            // Clean up listeners after wave ends to avoid duplicate counts
+            if (this.enemyKilledListener) {
+                this.entityManager.off('ENEMY_KILLED', this.enemyKilledListener);
+                this.enemyKilledListener = null;
+            }
+            if (this.enemyReachedEndListener) {
+                this.entityManager.off('ENEMY_REACHED_END', this.enemyReachedEndListener);
+                this.enemyReachedEndListener = null;
+            }
         }
     }
 
-    /**
-     * Calculates next spawn time for an enemy type based on interval.
-     * @param {*} typeObj
-     */
     spawnTimeForType(typeObj) {
         return typeObj.interval * 1000; // Convert seconds to ms
     }
