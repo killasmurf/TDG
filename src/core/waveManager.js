@@ -8,17 +8,18 @@ export default class WaveManager {
     /**
      * @param {EntityManager} entityManager - Reference to the game entity manager.
      * @param {Object[]} waves - Array of wave definitions.
+     * @param {Function} onWaveComplete - Optional callback when a wave finishes.
      */
-    constructor(entityManager, waves) {
+    constructor(entityManager, waves, onWaveComplete) {
         this.entityManager = entityManager;
         this.waves = waves;
         this.currentWaveIndex = 0;
         this.isWaveActive = false;
         this.spawnTimer = 0;
-
-        // Counters
+        this.spawnCounts = {}; // per-type spawn counter
         this.enemiesSpawned = 0;
         this.enemiesRemaining = 0;
+        this.onWaveComplete = onWaveComplete;
     }
 
     /**
@@ -37,6 +38,7 @@ export default class WaveManager {
         });
         this.isWaveActive = true;
         this.spawnTimer = 0;
+        this.spawnCounts = {};
         console.log(`Starting wave ${this.currentWaveIndex + 1}`);
         return true;
     }
@@ -53,15 +55,17 @@ export default class WaveManager {
 
         // Spawn enemies according to the schedules
         for (const waveEnemy of currentWave.enemies) {
+            const type = waveEnemy.type;
+            if (!this.spawnCounts[type]) this.spawnCounts[type] = 0;
+
             while (
-                this.enemiesSpawned < this.enemiesSpawnedForType(waveEnemy) &&
+                this.spawnCounts[type] < waveEnemy.count &&
                 this.spawnTimer >= this.spawnTimeForType(waveEnemy)
             ) {
-                // Spawn one enemy of this type
                 const path = this.entityManager.path || [];
-                this.entityManager.spawnEnemy(waveEnemy.type, path);
-                this.enemiesSpawned++;
-                this.spawnTimer = 0; // reset after each spawn
+                this.entityManager.spawnEnemy(type, path);
+                this.spawnCounts[type]++;
+                this.spawnTimer = 0;
             }
         }
 
@@ -71,16 +75,8 @@ export default class WaveManager {
             this.isWaveActive = false;
             this.currentWaveIndex++;
             console.log('Wave completed.');
+            this.onWaveComplete?.();
         }
-    }
-
-    /**
-     * Counts how many enemies of a type have been spawned so far.
-     * @param {*} typeObj
-     */
-    enemiesSpawnedForType(typeObj) {
-        // The spawn timer is reset after each spawn, so we count per loop. Simplify:
-        return 0; // TODO: implement per-type counter if needed.
     }
 
     /**
