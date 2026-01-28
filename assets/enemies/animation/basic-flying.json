@@ -1,0 +1,18 @@
+// assets/enemies/animation/basic-flying.json
+// Base64 encoded sprite sheet (64x64, 3 frames: idle, blink, hit)
+{
+  "frames": [
+    {
+      "imageUri": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUA",
+      "duration": 0.15
+    },
+    {
+      "imageUri": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUA",
+      "duration": 0.10
+    },
+    {
+      "imageUri": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUA",
+      "duration": 0.15
+    }
+  ]
+}
