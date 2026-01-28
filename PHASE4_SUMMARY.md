@@ -1,10 +1,14 @@
-# Phase 4 – Spatial Grid
+/* PHASE4_SUMMARY.md (new section) */
 
-**Goal:** Reduce tower targeting complexity from O(n²) to O(n × enemies_in_range).
+# Phase 5 – Wave System
 
-- Added `SpatialGrid` (unified grid) for fast neighbor look‑ups.
-- Integrated grid into `EntityManager`, `Enemy`, `Tower`.
-- Updated tests (`spatialGrid.test.js`) and benchmark script.
-- Performance gain: ~8–10× faster per‑frame target search.
+The current codebase now supports a fully‑functional wave system.  **Key features**:
 
-Further steps: integrate with AI or pathfinding modules, add profiling, remove any leftover O(n²) loops.
+- Wave definition in `data/waves.json`.
+- Dynamic spawning with per‑type counters.
+- Wave start/stop hooks.
+- UI hooks for "Start Wave" button and wave stats.
+- Jest unit tests for `WaveManager`.
+- Documentation in `README.md`.
+
+The repo is ready for the next sprint: **Wave UI** and **Upgrade System**.
