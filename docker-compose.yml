@@ -1,0 +1,17 @@
+# Docker Compose for local dev and tests
+# Allows you to run the container with a single command
+# and see output logs in your terminal.
+
+version: '3.8'
+services:
+  tdg:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app:ro
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+    command: npm run dev
