@@ -26,6 +26,9 @@ COPY . .
 # Run the automated tests. If any test fails the build will abort.
 RUN npm test
 
+# ... after RUN npm test
+RUN npm run build
+
 # --------------------------------------------------
 # 2️⃣ Runtime Stage – minimal image for running the app
 # --------------------------------------------------
