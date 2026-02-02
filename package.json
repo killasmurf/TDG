@@ -1,11 +1,11 @@
-// package.json (excerpt)
 {
   "name": "tdg",
   "version": "1.0.0",
   "description": "Tower Defense Game",
+  "type": "module",
   "main": "src/main.js",
   "scripts": {
-    "test": "jest",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "start": "node src/main.js"
   },
   "dependencies": {

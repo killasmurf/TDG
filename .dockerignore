@@ -4,7 +4,6 @@ node_modules
 .git
 .gitignore
 *.log
-*.json
 *.md
 *.png
 *.jpg
@@ -12,3 +11,8 @@ node_modules
 *.svg
 *.mp4
 public
+# Keep package.json and package-lock.json (needed for npm install)
+# Keep waves.json (needed for game data)
+!package.json
+!package-lock.json
+!data/waves.json

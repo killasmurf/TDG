@@ -5,9 +5,16 @@ class MockEntityManager {
   constructor() {
     this.enemies = [];
     this.path = [{x:0, y:0}];
+    this.listeners = {};
   }
   spawnEnemy(type, path) {
     this.enemies.push({type, path, active:true});
+  }
+  on(event, callback) {
+    this.listeners[event] = callback;
+  }
+  off(event, callback) {
+    delete this.listeners[event];
   }
 }
 
