@@ -1,32 +1,51 @@
-// src/main.js - add map editor integration (partial)
-import MapEditor from './editor/MapEditor.js';
-// ...existing imports
+// src/main.js - Game entry point
+import Game from './core/game.js';
 
-const canvas = document.getElementById('gameCanvas');
-const entityManager = new EntityManager(game);
-const waveManager = new WaveManager(entityManager, waves);
-const editor = new MapEditor(canvas, entityManager);
+// Wait for DOM to be ready
+document.addEventListener('DOMContentLoaded', () => {
+    // Create game instance
+    const game = new Game('gameCanvas');
 
-const toggleEditorBtn = document.getElementById('toggle-editor');
-let editorEnabled = false;
+    // Initialize the game
+    game.init();
 
-toggleEditorBtn.addEventListener('click', () => {
-  editorEnabled = !editorEnabled;
-  if (editorEnabled) {
-    editor.enable();
-    toggleEditorBtn.textContent = 'Stop Editing';
-  } else {
-    editor.disable();
-    toggleEditorBtn.textContent = 'Edit Map';
-  }
+    // Handle click to start from menu
+    document.addEventListener('click', (e) => {
+        if (game.state === 'menu') {
+            game.startGame();
+        }
+    }, { once: false });
+
+    // Update HUD elements
+    function updateHUD() {
+        const waveNumber = document.getElementById('wave-number');
+        const waveStatus = document.getElementById('wave-status');
+
+        if (waveNumber && game.waveManager) {
+            waveNumber.textContent = `Wave: ${game.waveManager.getCurrentWaveNumber()}/${game.waveManager.getTotalWaves()}`;
+        }
+
+        if (waveStatus) {
+            if (game.waveInProgress) {
+                waveStatus.textContent = `Enemies: ${game.waveManager.getEnemiesRemaining()}`;
+            } else {
+                waveStatus.textContent = 'Press SPACE to start wave';
+            }
+        }
+    }
+
+    // Update HUD periodically
+    setInterval(updateHUD, 100);
+
+    // Handle start wave button
+    const startWaveBtn = document.getElementById('start-wave');
+    if (startWaveBtn) {
+        startWaveBtn.addEventListener('click', () => {
+            if (game.state === 'playing' && !game.waveInProgress) {
+                game.startNextWave();
+            }
+        });
+    }
+
+    console.log('Tower Defense Game initialized!');
 });
-
-function loop(deltaTime) {
-  if (!editorEnabled) {
-    waveManager.update(deltaTime);
-    entityManager.update(deltaTime);
-    updateHud();
-  }
-  // render always runs; editor drawing only when enabled
-  render();
-}

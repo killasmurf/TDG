@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+
+# Build outputs (except the portable exe we want to keep)
+dist/win-unpacked/
+dist/builder-debug.yml
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Local config
+.claude/
