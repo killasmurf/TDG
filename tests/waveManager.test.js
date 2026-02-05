@@ -1,43 +1,130 @@
-import WaveManager from '../src/core/waveManager.js';
-import EntityManager from '../src/core/entityManager.js';
+// Jest tests for WaveManager
+import { jest } from '@jest/globals';
 
-class MockEntityManager {
-  constructor() {
-    this.enemies = [];
-    this.path = [{x:0, y:0}];
-    this.listeners = {};
-  }
-  spawnEnemy(type, path) {
-    this.enemies.push({type, path, active:true});
-  }
-  on(event, callback) {
-    this.listeners[event] = callback;
-  }
-  off(event, callback) {
-    delete this.listeners[event];
-  }
+import Config from '../src/config.js';
+import WaveManager from '../src/core/waveManager.js';
+import { EventEmitter } from '../src/core/EventEmitter.js';
+
+// Dummy EntityManager that records spawn/call counts
+class DummyEntityManager {
+    constructor() {
+        this.spawned = [];
+        this.enemies = [];
+        this.listeners = {};
+        this.path = [{ x: 0, y: 0 }, { x: 100, y: 100 }];
+    }
+    spawnEnemy(type, path) {
+        this.spawned.push({ type, path });
+        this.enemies.push({ type, active: true });
+    }
+    spawnTower() { }
+    clear() { }
+    update() { }
+    on(event, callback) {
+        this.listeners[event] = callback;
+    }
+    off(event, callback) {
+        if (this.listeners[event] === callback) {
+            delete this.listeners[event];
+        }
+    }
+    // Helper to simulate enemy death
+    killAllEnemies() {
+        this.enemies = [];
+        if (this.listeners['ENEMY_KILLED']) {
+            for (let i = 0; i < this.spawned.length; i++) {
+                this.listeners['ENEMY_KILLED']();
+            }
+        }
+    }
 }
 
 describe('WaveManager', () => {
-  const waves = [
-    {
-      name: 'Test',
-      enemies: [{type:'basic', count:2, interval:1}]
-    }
-  ];
-  const mockEm = new MockEntityManager();
-  const wm = new WaveManager(mockEm, waves);
+    let entityManager;
+    let waveManager;
+    let events;
 
-  test('starts next wave', () => {
-    expect(wm.startNextWave()).toBe(true);
-    expect(wm.isWaveActive).toBe(true);
-  });
+    beforeEach(() => {
+        events = new EventEmitter();
+        entityManager = new DummyEntityManager();
+        waveManager = new WaveManager(entityManager, Config.waves || [], events);
+    });
 
-  test('spawns enemies over time', () => {
-    wm.startNextWave();
-    for(let t = 0; t < 3000; t+=1000){
-       wm.update(1000);
-    }
-    expect(mockEm.enemies.length).toBe(2);
-  });
+    test('startNextWave emits start event and initializes wave', () => {
+        const startSpy = jest.fn();
+        events.on('wave:started', startSpy);
+
+        const result = waveManager.startNextWave();
+
+        expect(result).toBe(true);
+        expect(startSpy).toHaveBeenCalled();
+        expect(waveManager.isWaveActive).toBe(true);
+        expect(waveManager.getCurrentWaveNumber()).toBe(1);
+    });
+
+    test('update spawns enemies over time', () => {
+        waveManager.startNextWave();
+
+        // Initially no enemies spawned
+        expect(entityManager.spawned.length).toBe(0);
+
+        // Simulate enough time to spawn first enemy (interval is in seconds * 1000)
+        const firstEnemyInterval = Config.waves[0].enemies[0].interval * 1000;
+        waveManager.update(firstEnemyInterval + 1);
+
+        // At least one enemy should be spawned
+        expect(entityManager.spawned.length).toBeGreaterThan(0);
+    });
+
+    test('getter methods return correct values after wave start', () => {
+        waveManager.startNextWave();
+
+        expect(waveManager.getCurrentWaveNumber()).toBe(1);
+        expect(waveManager.getTotalWaves()).toBe(Config.waves.length);
+
+        const expectedTotal = Config.waves[0].enemies.reduce((sum, e) => sum + e.count, 0);
+        expect(waveManager.getEnemiesRemaining()).toBe(expectedTotal);
+        expect(waveManager.getTotalEnemiesInWave()).toBe(expectedTotal);
+        expect(waveManager.isAllWavesComplete()).toBe(false);
+    });
+
+    test('wave completes when all enemies are killed', () => {
+        const completedSpy = jest.fn();
+        events.on('wave:completed', completedSpy);
+
+        waveManager.startNextWave();
+
+        // Spawn all enemies by updating with large time
+        const totalEnemies = Config.waves[0].enemies.reduce((sum, e) => sum + e.count, 0);
+        for (let i = 0; i < totalEnemies; i++) {
+            waveManager.update(10000); // Large time to spawn next enemy
+        }
+
+        // Kill all enemies
+        entityManager.killAllEnemies();
+
+        // Update to trigger completion check
+        waveManager.update(0);
+
+        expect(completedSpy).toHaveBeenCalled();
+        expect(waveManager.isWaveActive).toBe(false);
+    });
+
+    test('isAllWavesComplete returns true after all waves', () => {
+        // Start and complete all waves
+        for (let w = 0; w < Config.waves.length; w++) {
+            waveManager.startNextWave();
+
+            const totalEnemies = Config.waves[w].enemies.reduce((sum, e) => sum + e.count, 0);
+            for (let i = 0; i < totalEnemies; i++) {
+                waveManager.update(10000);
+            }
+
+            entityManager.killAllEnemies();
+            entityManager.spawned = []; // Reset for next wave
+            waveManager.update(0);
+        }
+
+        expect(waveManager.isAllWavesComplete()).toBe(true);
+    });
 });

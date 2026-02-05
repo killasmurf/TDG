@@ -159,6 +159,7 @@ class BaseEntity {
      * Calls onDeactivate hook for cleanup
      */
     reset() {
+        // The onDeactivate hook has been moved to the start of reset to ensure cleanup
         this.onDeactivate();
         this.x = 0;
         this.y = 0;

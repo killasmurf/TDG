@@ -214,6 +214,9 @@ class Enemy extends BaseEntity {
      * @param {string} type - Enemy type to reset to
      */
     reset(type = 'basic') {
+        // Call onDeactivate hook for cleanup before resetting
+        this.onDeactivate();
+
         const config = Config.enemy[type] || Config.enemy.basic;
 
         this.x = 0;
@@ -226,6 +229,7 @@ class Enemy extends BaseEntity {
         this.reward = config.reward;
         this.color = config.color;
         this.active = true;
+        this.pooled = true;
         this.path = [];
         this.currentPathIndex = 0;
         this.target = null;

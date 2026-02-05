@@ -2,6 +2,7 @@
  * Renderer
  * Handles drawing of game objects to the canvas
  */
+import { GameEvents } from './EventEmitter.js';
 
 class Renderer {
     constructor(canvasId) {
@@ -52,6 +53,15 @@ class Renderer {
         this.ctx.moveTo(x1, y1);
         this.ctx.lineTo(x2, y2);
         this.ctx.stroke();
+    }
+
+    /**
+     * Wave UI rendering helper
+     * Adds a method to Renderer that displays the wave progress
+     */
+    renderWaveInfo(waveNumber, totalWaves, enemiesRemaining, totalEnemies) {
+        const text = `Wave ${waveNumber} / ${totalWaves} - Enemies: ${enemiesRemaining} / ${totalEnemies}`;
+        this.drawText(text, 10, 20, 16, '#fff');
     }
 }
 

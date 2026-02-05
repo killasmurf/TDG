@@ -9,28 +9,28 @@ Use this checklist to track progress. Check off items as you complete them.
 ### 6.1 Fix onDeactivate Bug
 - [ ] Open `src/entities/baseEntity.js`
 - [ ] Find `reset()` method
-- [ ] Add `this.onDeactivate();` at the START of reset()
+- [x] Add `this.onDeactivate();` at the START of reset()
 - [ ] Run `node tests/phase2-architecture-test.js` - expect 15/15 pass
 
 ### 6.2 Convert Legacy Tests
-- [ ] Rename `tests/phase1-bugfixes-test.js` to `tests/phase1-bugfixes.test.js`
-- [ ] Convert to Jest describe/test/expect pattern
-- [ ] Remove all `process.exit()` calls
-- [ ] Rename `tests/phase2-architecture-test.js` to `tests/phase2-architecture.test.js`
-- [ ] Convert to Jest describe/test/expect pattern
-- [ ] Remove all `process.exit()` calls
-- [ ] Rename `tests/phase3-event-system-test.js` to `tests/phase3-event-system.test.js`
-- [ ] Convert to Jest describe/test/expect pattern
-- [ ] Remove all `process.exit()` calls
+- [x] Rename `tests/phase1-bugfixes-test.js` to `tests/phase1-bugfixes.test.js`
+- [x] Convert to Jest describe/test/expect pattern
+- [x] Remove all `process.exit()` calls
+- [x] Rename `tests/phase2-architecture-test.js` to `tests/phase2-architecture.test.js`
+- [x] Convert to Jest describe/test/expect pattern
+- [x] Remove all `process.exit()` calls
+- [x] Rename `tests/phase3-event-system-test.js` to `tests/phase3-event-system.test.js`
+- [x] Convert to Jest describe/test/expect pattern
+- [x] Remove all `process.exit()` calls
 - [ ] Run `npm test` - all tests should pass
 
 ### 6.3 Wave Progress UI
 - [ ] Add getter methods to `src/core/waveManager.js`:
-  - [ ] `getCurrentWaveNumber()`
-  - [ ] `getTotalWaves()`
-  - [ ] `getEnemiesRemaining()`
-  - [ ] `getTotalEnemiesInWave()`
-  - [ ] `isAllWavesComplete()`
+  - [x] `getCurrentWaveNumber()`
+  - [x] `getTotalWaves()`
+  - [x] `getEnemiesRemaining()`
+  - [x] `getTotalEnemiesInWave()`
+  - [x] `isAllWavesComplete()`
 - [ ] Add `renderWaveInfo()` to `src/core/renderer.js`
 - [ ] Call `renderWaveInfo()` from game loop in `src/core/game.js`
 - [ ] Add WAVE_COMPLETED event emission in waveManager
@@ -154,3 +154,4 @@ npm start
 | UI rendering | `src/core/renderer.js` |
 | Game integration | `src/core/game.js` |
 | Input handling | `src/core/input.js` |
+```
