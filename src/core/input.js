@@ -27,19 +27,33 @@ class InputHandler {
 
         // Mouse events
         document.addEventListener('mousemove', (e) => {
-            const canvas = document.getElementById('gameCanvas');
-            const rect = canvas.getBoundingClientRect();
-            this.mouse.x = e.clientX - rect.left;
-            this.mouse.y = e.clientY - rect.top;
+            this.updateMousePosition(e);
         });
 
         document.addEventListener('mousedown', (e) => {
+            this.updateMousePosition(e);
             this.mouse.isDown = true;
         });
 
         document.addEventListener('mouseup', (e) => {
             this.mouse.isDown = false;
         });
+
+        // Also track on click to ensure position is updated
+        document.addEventListener('click', (e) => {
+            this.updateMousePosition(e);
+        });
+    }
+
+    updateMousePosition(e) {
+        const canvas = document.getElementById('gameCanvas');
+        if (canvas) {
+            const rect = canvas.getBoundingClientRect();
+            this.mouse.x = e.clientX - rect.left;
+            this.mouse.y = e.clientY - rect.top;
+        } else {
+            console.error('[InputHandler] Canvas not found!');
+        }
     }
 
     isKeyPressed(key) {

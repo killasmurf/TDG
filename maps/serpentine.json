@@ -1,0 +1,29 @@
+{
+  "name": "Serpentine Path",
+  "description": "A winding S-shaped path that gives towers multiple attack opportunities",
+  "version": "1.0",
+  "author": "Tower Defense Game",
+  "canvas": {
+    "width": 800,
+    "height": 600,
+    "backgroundColor": "#2d2d2d"
+  },
+  "path": {
+    "waypoints": [
+      { "x": 0, "y": 100 },
+      { "x": 250, "y": 100 },
+      { "x": 250, "y": 250 },
+      { "x": 550, "y": 250 },
+      { "x": 550, "y": 400 },
+      { "x": 250, "y": 400 },
+      { "x": 250, "y": 500 },
+      { "x": 800, "y": 500 }
+    ],
+    "width": 40,
+    "color": "#8b7355"
+  },
+  "settings": {
+    "startingMoney": 125,
+    "startingLives": 25
+  }
+}

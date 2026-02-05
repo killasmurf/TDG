@@ -18,6 +18,7 @@ const Config = {
     healthBar: { height: 5, yOffset: 10, backgroundColor: '#555', foregroundColor: '#6bf', },
     fontFamily: 'Arial',
     fontSize: 16,
+    rangeIndicator: { color: 'rgba(255, 255, 255, 0.3)', lineWidth: 1 },
   },
 
   // Asset map – each type knows its sprite sheet url & cell size.  The engine can use this for image‑based drawing.
@@ -36,9 +37,9 @@ const Config = {
 
   // Tower defaults (same as before – keep engine compatible)
   tower: {
-    basic: { width: 40, height: 40, damage: 10, range: 100, fireRate: 1000, cost: 50, color: 'blue' },
-    sniper: { width: 35, height: 35, damage: 25, range: 200, fireRate: 2000, cost: 100, color: 'darkblue' },
-    rapid: { width: 30, height: 30, damage: 5, range: 80, fireRate: 200, cost: 75, color: 'cyan' },
+    basic: { width: 40, height: 40, damage: 10, range: 100, fireRate: 1000, cost: 50, color: 'blue', projectileSpeed: 300 },
+    sniper: { width: 35, height: 35, damage: 25, range: 200, fireRate: 2000, cost: 100, color: 'darkblue', projectileSpeed: 500 },
+    rapid: { width: 30, height: 30, damage: 5, range: 80, fireRate: 200, cost: 75, color: 'cyan', projectileSpeed: 400 },
   },
 
   // Enemy defaults – keep same properties used in engine

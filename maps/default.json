@@ -1,0 +1,27 @@
+{
+  "name": "Default Map",
+  "description": "The standard winding path through the battlefield",
+  "version": "1.0",
+  "author": "Tower Defense Game",
+  "canvas": {
+    "width": 800,
+    "height": 600,
+    "backgroundColor": "#2d2d2d"
+  },
+  "path": {
+    "waypoints": [
+      { "x": 0, "y": 100 },
+      { "x": 200, "y": 100 },
+      { "x": 200, "y": 300 },
+      { "x": 600, "y": 300 },
+      { "x": 600, "y": 500 },
+      { "x": 800, "y": 500 }
+    ],
+    "width": 40,
+    "color": "#8b7355"
+  },
+  "settings": {
+    "startingMoney": 100,
+    "startingLives": 20
+  }
+}

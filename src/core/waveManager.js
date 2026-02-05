@@ -96,7 +96,8 @@ export default class WaveManager {
     }
 
     spawnTimeForType(typeObj) {
-        return typeObj.interval * 1000;
+        // interval is in seconds, spawnTimer accumulates in seconds
+        return typeObj.interval;
     }
 
     getCurrentWaveNumber() { return this.currentWaveIndex + 1; }

@@ -8,6 +8,12 @@
   #hud { position:absolute; top:10px; left:10px; background:rgba(0,0,0,0.6); padding:8px 12px; border-radius:4px; }
   #hud span { margin-right:10px; }
   #btn-start-wave { margin-top:5px; }
+  #map-selector { position:absolute; top:10px; right:10px; background:rgba(0,0,0,0.7); padding:10px; border-radius:4px; max-width:250px; display:none; /* Hidden - map selection now in main menu */ }
+  #map-selector label { display:block; margin-bottom:5px; font-size:12px; color:#aaa; }
+  #map-selector select { width:100%; padding:5px; background:#333; color:#fff; border:1px solid #555; border-radius:3px; }
+  #map-selector button { margin-top:8px; width:100%; padding:6px; background:#4a7c59; color:#fff; border:none; border-radius:3px; cursor:pointer; }
+  #map-selector button:hover { background:#5a8c69; }
+  #map-info { font-size:11px; color:#888; margin-top:5px; line-height:1.4; }
   canvas { display:block; margin:0 auto; background:#111; }
 </style>
 </head>
@@ -16,6 +22,17 @@
   <span id="wave-number"></span>
   <span id="wave-status"></span>
   <div><button id="start-wave" class="btn">Start Wave</button></div>
+</div>
+<div id="map-selector">
+  <label for="map-select">Select Map:</label>
+  <select id="map-select">
+    <option value="./maps/default.json">Default Map</option>
+    <option value="./maps/straight.json">Straight Shot</option>
+    <option value="./maps/serpentine.json">Serpentine Path</option>
+    <option value="./maps/spiral.json">Spiral Fortress</option>
+  </select>
+  <button id="load-map">Load Map</button>
+  <div id="map-info">Select a map and click Load Map to change the level.</div>
 </div>
 <canvas id="gameCanvas" width="800" height="600"></canvas>
 <script type="module" src="./src/main.js"></script>

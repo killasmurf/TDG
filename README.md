@@ -1,4 +1,61 @@
-# Building the Stand‑alone Executable
+# Tower Defense Game (TDG)
+
+A complete tower defense game built with vanilla JavaScript and rendered on HTML5 Canvas. Defend your base from waves of enemies by strategically placing towers along their path.
+
+## Features
+
+### Main Menu System
+- Professional main menu screen on startup
+- Select from 4 different maps before playing
+- Access settings (volume, difficulty)
+- Exit game functionality
+
+### Multiple Maps
+- **Default Map** - Standard winding path ($100, 20 lives)
+- **Straight Shot** - Simple straight path for testing ($150, 15 lives)
+- **Serpentine Path** - S-shaped challenging path ($125, 25 lives)
+- **Spiral Fortress** - Complex spiral to center ($200, 30 lives)
+
+### Tower Defense Gameplay
+- **3 Tower Types**: Basic, Sniper, and Rapid-fire
+- **Smart Placement Validation**: Prevents placing towers on paths
+- **Wave System**: Start/pause waves with SPACE
+- **Pause Menu**: Press ESC for pause menu with Continue/Restart/Exit options
+
+### Map System
+- JSON-based map files for easy customization
+- Custom waypoint paths
+- Configurable starting resources per map
+- See [MAP_SYSTEM_IMPLEMENTATION.md](MAP_SYSTEM_IMPLEMENTATION.md) for details
+
+## Controls
+
+- **1, 2, 3** - Select tower type (Basic, Sniper, Rapid)
+- **Click** - Place selected tower
+- **SPACE** - Start/pause current wave
+- **ESC** - Open pause menu
+- **Arrow Keys** - Navigate pause menu
+- **Enter** - Select pause menu option
+
+## Getting Started
+
+### Running the Game (Development)
+
+```bash
+npm start
+```
+
+This launches the game in Electron.
+
+### Running Tests
+
+```bash
+npm test
+```
+
+All 38 unit tests should pass.
+
+## Building the Stand‑alone Executable
 
 > **How to actually invoke the batch file** (the file is `build_exe.bat`).
 >
