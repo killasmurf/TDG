@@ -63,6 +63,11 @@ const Config = {
     sfxVolume: 0.8,
     musicVolume: 0.5,
   },
+
+  // Path settings for enemy movement
+  path: {
+    waypointThreshold: 5, // Distance to consider waypoint reached
+  },
 };
 
 // Wave configuration – appended to base object

@@ -13,9 +13,10 @@ class GameLoop {
     }
 
     start() {
+        if (this.isRunning) return; // Prevent double-start
         this.isRunning = true;
         this.lastTime = performance.now();
-        this.gameLoop();
+        requestAnimationFrame((time) => this.gameLoop(time));
     }
 
     stop() {

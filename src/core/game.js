@@ -81,6 +81,8 @@ class Game extends GameLoop {
     init() {
         this.setupDefaultPath();
         this.state = 'menu';
+        // Start the render loop immediately so menu is visible
+        this.start();
     }
 
     setupDefaultPath() {
@@ -90,6 +92,9 @@ class Game extends GameLoop {
         this.pathManager.addWaypoint(600, 300);
         this.pathManager.addWaypoint(600, 500);
         this.pathManager.addWaypoint(800, 500);
+
+        // Set path on entityManager for WaveManager to use
+        this.entityManager.path = this.pathManager.getWaypoints();
     }
 
     loadLevel(level) {
@@ -107,16 +112,15 @@ class Game extends GameLoop {
 
     startGame() {
         this.state = 'playing';
-        this.start();
+        // Game loop already running from init(), just change state
     }
 
     togglePause() {
         if (this.state === 'playing') {
             this.state = 'paused';
-            this.stop();
+            // Don't stop render loop, just pause updates
         } else if (this.state === 'paused') {
             this.state = 'playing';
-            this.start();
         }
     }
 
@@ -210,13 +214,13 @@ class Game extends GameLoop {
 
     gameOver() {
         this.state = 'gameOver';
-        this.stop();
+        // Keep render loop running to show game over screen
         console.log('Game Over! Final Score:', this.score);
     }
 
     victory() {
         this.state = 'victory';
-        this.stop();
+        // Keep render loop running to show victory screen
         console.log('Victory! Final Score:', this.score);
     }
 
