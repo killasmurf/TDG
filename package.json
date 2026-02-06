@@ -24,7 +24,11 @@
     "files": [
       "electron-main.cjs",
       "index.html",
-      "src/**/*"
+      "src/**/*",
+      "maps/**/*",
+      "data/**/*",
+      "assets/**/*",
+      "docs/**/*"
     ],
     "win": {
       "target": "portable",

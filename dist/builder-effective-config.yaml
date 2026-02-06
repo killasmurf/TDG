@@ -1,0 +1,14 @@
+directories:
+  output: dist
+  buildResources: build
+appId: com.tdg.towerdefense
+productName: Tower Defense Game
+files:
+  - filter:
+      - electron-main.cjs
+      - index.html
+      - src/**/*
+win:
+  target: portable
+  icon: null
+electronVersion: 40.2.1
