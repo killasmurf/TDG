@@ -3,7 +3,7 @@ import { jest } from '@jest/globals';
 
 import Config from '../src/config.js';
 import WaveManager from '../src/core/waveManager.js';
-import { EventEmitter } from '../src/core/EventEmitter.js';
+import { EventEmitter, GameEvents } from '../src/core/EventEmitter.js';
 
 // Dummy EntityManager that records spawn/call counts
 class DummyEntityManager {
@@ -31,9 +31,10 @@ class DummyEntityManager {
     // Helper to simulate enemy death
     killAllEnemies() {
         this.enemies = [];
-        if (this.listeners['ENEMY_KILLED']) {
+        const killEvent = GameEvents.ENEMY_KILLED; // 'enemy:killed'
+        if (this.listeners[killEvent]) {
             for (let i = 0; i < this.spawned.length; i++) {
-                this.listeners['ENEMY_KILLED']();
+                this.listeners[killEvent]();
             }
         }
     }

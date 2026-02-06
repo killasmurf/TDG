@@ -24,6 +24,9 @@ class Game extends GameLoop {
         this.waveManager = new WaveManager(this.entityManager, CONFIG_WAVES, GameEvents);
         GameEvents.on('wave:completed', () => {
             this.waveInProgress = false;
+            if (this.waveManager.isAllWavesComplete()) {
+                this.victory();
+            }
         });
 
         // Game state
@@ -519,6 +522,11 @@ class Game extends GameLoop {
         this.entityManager.clear();
         this.waveManager.currentWaveIndex = 0;
         this.state = 'playing';
+        // Re-apply current path for enemies
+        if (this.pathManager && this.entityManager) {
+            const currentPath = this.pathManager.getWaypoints();
+            this.entityManager.path = currentPath;
+        }
         console.log('[Game] Game restarted');
     }
 

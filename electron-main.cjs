@@ -16,6 +16,9 @@ function createWindow() {
     // Load the game's index.html
     win.loadFile('index.html');
 
+    // Open DevTools for debugging (remove in production)
+    win.webContents.openDevTools();
+
     // Remove menu bar for cleaner game experience
     win.setMenuBarVisibility(false);
 }

@@ -1,2 +1,17 @@
-// Sample waves.json
-[    {        "name": "Beginner",        "enemies": [            {                "type": "basic",                "count": 5,                "interval": 1            },            {                "type": "slow",                "count": 2,                "interval": 2            }        ]    },    {        "name": "Intermediate",        "enemies": [            {                "type": "basic",                "count": 10,                "interval": 1            },            {                "type": "fast",                "count": 5,                "interval": 1.5            },            {                "type": "tank",                "count": 1,                "interval": 3            }        ]    } ]
+[
+  {
+    "name": "Beginner",
+    "enemies": [
+      { "type": "basic", "count": 5, "interval": 1 },
+      { "type": "fast", "count": 2, "interval": 2 }
+    ]
+  },
+  {
+    "name": "Intermediate",
+    "enemies": [
+      { "type": "basic", "count": 10, "interval": 1 },
+      { "type": "fast", "count": 5, "interval": 1.5 },
+      { "type": "tank", "count": 1, "interval": 3 }
+    ]
+  }
+]

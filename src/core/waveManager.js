@@ -44,13 +44,13 @@ export default class WaveManager {
             this.enemyKilledListener = () => {
                 this.enemiesRemaining = Math.max(0, this.enemiesRemaining - 1);
             };
-            this.entityManager.on('ENEMY_KILLED', this.enemyKilledListener);
+            this.entityManager.on(GameEvents.ENEMY_KILLED, this.enemyKilledListener);
         }
         if (!this.enemyReachedEndListener) {
             this.enemyReachedEndListener = () => {
                 this.enemiesRemaining = Math.max(0, this.enemiesRemaining - 1);
             };
-            this.entityManager.on('ENEMY_REACHED_END', this.enemyReachedEndListener);
+            this.entityManager.on(GameEvents.ENEMY_REACHED_END, this.enemyReachedEndListener);
         }
         console.log(`Starting wave ${this.currentWaveIndex + 1}`);
         this.eventEmitter.emit('wave:started');

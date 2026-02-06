@@ -2,7 +2,7 @@
 import Game from './core/game.js';
 
 // Global error handler
-window.onerror = function(message, source, lineno, error) {
+window.onerror = function(message, source, lineno, colno, error) {
     console.error('[GLOBAL ERROR]', message, 'at', source, lineno, colno);
     console.error(error);
     return false;
