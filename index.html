@@ -5,16 +5,12 @@
 <title>Tower Defense Game (TDG)</title>
 <style>
   body { margin:0; font-family:Arial, sans-serif; background:#222; color:#fff; }
-  #hud { position:absolute; top:10px; left:10px; background:rgba(0,0,0,0.6); padding:8px 12px; border-radius:4px; }
+  #hud { position:absolute; top:10px; left:10px; background:rgba(0,0,0,0.6); padding:8px 12px; border-radius:4px; display:none; }
+  #hud.visible { display:block; }
   #hud span { margin-right:10px; }
   #btn-start-wave { margin-top:5px; }
-  #map-selector { position:absolute; top:10px; right:10px; background:rgba(0,0,0,0.7); padding:10px; border-radius:4px; max-width:250px; display:none; /* Hidden - map selection now in main menu */ }
-  #map-selector label { display:block; margin-bottom:5px; font-size:12px; color:#aaa; }
-  #map-selector select { width:100%; padding:5px; background:#333; color:#fff; border:1px solid #555; border-radius:3px; }
-  #map-selector button { margin-top:8px; width:100%; padding:6px; background:#4a7c59; color:#fff; border:none; border-radius:3px; cursor:pointer; }
-  #map-selector button:hover { background:#5a8c69; }
-  #map-info { font-size:11px; color:#888; margin-top:5px; line-height:1.4; }
   canvas { display:block; margin:0 auto; background:#111; }
+  #error-display { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); background:rgba(200,0,0,0.9); padding:20px; border-radius:8px; max-width:600px; display:none; z-index:100; font-size:14px; white-space:pre-wrap; }
 </style>
 </head>
 <body>
@@ -23,18 +19,28 @@
   <span id="wave-status"></span>
   <div><button id="start-wave" class="btn">Start Wave</button></div>
 </div>
-<div id="map-selector">
-  <label for="map-select">Select Map:</label>
-  <select id="map-select">
-    <option value="./maps/default.json">Default Map</option>
-    <option value="./maps/straight.json">Straight Shot</option>
-    <option value="./maps/serpentine.json">Serpentine Path</option>
-    <option value="./maps/spiral.json">Spiral Fortress</option>
-  </select>
-  <button id="load-map">Load Map</button>
-  <div id="map-info">Select a map and click Load Map to change the level.</div>
-</div>
+<div id="error-display"></div>
 <canvas id="gameCanvas" width="800" height="600"></canvas>
+<script>
+  // Non-module error catcher — runs before the module loads
+  window.onerror = function(msg, src, line, col, err) {
+    var el = document.getElementById('error-display');
+    if (el) { el.style.display = 'block'; el.textContent = 'ERROR: ' + msg + '\nat ' + src + ':' + line + ':' + col; }
+    console.error('[GLOBAL]', msg, src, line, col, err);
+  };
+  window.addEventListener('unhandledrejection', function(e) {
+    var el = document.getElementById('error-display');
+    if (el) { el.style.display = 'block'; el.textContent = 'PROMISE ERROR: ' + (e.reason && e.reason.stack || e.reason); }
+    console.error('[PROMISE]', e.reason);
+  });
+</script>
 <script type="module" src="./src/main.js"></script>
+<script type="module">
+  // If the module loaded, this runs — draw a marker so we know
+  import('./src/main.js').catch(function(err) {
+    var el = document.getElementById('error-display');
+    if (el) { el.style.display = 'block'; el.textContent = 'MODULE LOAD FAILED: ' + (err.stack || err.message || err); }
+  });
+</script>
 </body>
 </html>

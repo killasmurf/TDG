@@ -6,20 +6,17 @@
 import BaseEntity from './baseEntity.js';
 import Config from '../config.js';
 import { GameEvents } from '../core/EventEmitter.js';
-
-class Tower extends BaseEntity {
-    constructor(x, y, type = 'basic') {
+    constructor(x, y, type = 'basic', tier = 1) {
         const config = Config.tower[type] || Config.tower.basic;
-
         super(x, y, config.width, config.height);
-
         this.type = type;
+        this.tier = tier;     // added tier on construction
         this.damage = config.damage;
         this.range = config.range;
-        this.fireRate = config.fireRate; // milliseconds
-        this.fireTimer = 0; // Accumulator for deltaTime-based firing
-        this.target = null;
-        this.projectileSpeed = config.projectileSpeed;
+        this.fireRate = config.fireRate;
+        this.towerSize = config;
+        this.color = config.color;
+    }
         this.color = config.color;
         this.cost = config.cost;
 
