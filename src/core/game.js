@@ -6,7 +6,7 @@ import EntityManager from './entityManager.js';
 import PathManager from '../entities/pathManager.js';
 import Config from '../config.js';
 import WaveManager from './waveManager.js';
-import { GameEvents } from './EventEmitter.js';
+import { gameEvents } from './EventEmitter.js';
 
 class Game extends GameLoop {
     constructor(canvasId = Config.canvas.id) {
@@ -21,8 +21,8 @@ class Game extends GameLoop {
 
         // Wave system
         const CONFIG_WAVES = Config.waves || [];
-        this.waveManager = new WaveManager(this.entityManager, CONFIG_WAVES, GameEvents);
-        GameEvents.on('wave:completed', () => {
+        this.waveManager = new WaveManager(this.entityManager, CONFIG_WAVES, gameEvents);
+        gameEvents.on('wave:completed', () => {
             this.waveInProgress = false;
             if (this.waveManager.isAllWavesComplete()) {
                 this.victory();
@@ -41,6 +41,8 @@ class Game extends GameLoop {
         // Selection state
         this.selectedTowerType = null;
         this.hoveredCell = null;
+        this.placementError = null;
+        this.placementErrorTimer = 0;
 
         // Main menu state
         this.mainMenuOptions = [
@@ -559,6 +561,15 @@ class Game extends GameLoop {
     update(deltaTime) {
         if (this.state !== 'playing') return;
 
+        // Count down placement error display
+        if (this.placementErrorTimer > 0) {
+            this.placementErrorTimer -= deltaTime * 1000;
+            if (this.placementErrorTimer <= 0) {
+                this.placementError = null;
+                this.placementErrorTimer = 0;
+            }
+        }
+
         // Pause wave updates if wavePaused
         if (!this.wavePaused) {
             this.waveManager.update(deltaTime);
@@ -596,17 +607,33 @@ class Game extends GameLoop {
             return;
         }
         console.log('[Game] Tower cost:', towerConfig.cost, 'Player money:', this.money);
+
+        // Check money first
+        if (this.money < towerConfig.cost) {
+            console.log('[Game] Not enough money');
+            this.placementError = 'Not enough money!';
+            this.placementErrorTimer = 2000;
+            return; // Keep selectedTowerType so user can try another position
+        }
+
         const isValidPos = this.isValidTowerPosition(x, y);
         console.log('[Game] Is valid position:', isValidPos);
-        if (this.money >= towerConfig.cost && isValidPos) {
+        if (isValidPos) {
             console.log('[Game] Spawning tower!');
-            this.entityManager.spawnTower(this.selectedTowerType, x, y);
+            // Center tower at click position (matches preview)
+            const tx = x - towerConfig.width / 2;
+            const ty = y - towerConfig.height / 2;
+            this.entityManager.spawnTower(this.selectedTowerType, tx, ty);
             this.money -= towerConfig.cost;
             this.audio.play('towerPlace');
+            this.placementError = null;
+            this.selectedTowerType = null;
         } else {
-            console.log('[Game] Cannot place tower - not enough money or invalid position');
+            console.log('[Game] Invalid position');
+            this.placementError = 'Cannot place here!';
+            this.placementErrorTimer = 2000;
+            // Keep selectedTowerType so user can try another position
         }
-        this.selectedTowerType = null;
     }
 
     isValidTowerPosition(x, y) {
@@ -715,7 +742,8 @@ class Game extends GameLoop {
         const towerConfig = Config.tower[this.selectedTowerType];
         if (!towerConfig) return;
 
-        const isValid = this.isValidTowerPosition(mousePos.x, mousePos.y);
+        const canAfford = this.money >= towerConfig.cost;
+        const isValid = canAfford && this.isValidTowerPosition(mousePos.x, mousePos.y);
         const color = isValid ? 'rgba(0, 255, 0, 0.3)' : 'rgba(255, 0, 0, 0.3)';
 
         // Draw preview of tower at mouse position
@@ -729,6 +757,11 @@ class Game extends GameLoop {
 
         // Draw range indicator
         this.renderer.drawCircleOutline(mousePos.x, mousePos.y, towerConfig.range, color, 2);
+
+        // Show cost warning if can't afford
+        if (!canAfford) {
+            this.renderer.drawText(`Need $${towerConfig.cost} (have $${this.money})`, mousePos.x - 60, mousePos.y - towerConfig.height / 2 - 10, 12, 'red');
+        }
     }
 
     renderDebugInfo() {
@@ -790,6 +823,12 @@ class Game extends GameLoop {
             ctx.drawText('Press 1, 2, or 3 to select a tower', Config.canvas.width / 2 - 110, Config.canvas.height - 10, 14, 'cyan');
         }
         ctx.drawText('1-3: Select tower | ESC: Menu', Config.canvas.width - 220, Config.canvas.height - 10, 12, 'gray');
+
+        // Show placement error message
+        if (this.placementError) {
+            ctx.drawRect(Config.canvas.width / 2 - 100, Config.canvas.height / 2 - 15, 200, 30, 'rgba(200, 0, 0, 0.8)');
+            ctx.drawText(this.placementError, Config.canvas.width / 2 - 70, Config.canvas.height / 2 + 7, 16, 'white');
+        }
         if (this.waveManager) {
             ctx.renderWaveInfo(
                 this.waveManager.getCurrentWaveNumber(),
