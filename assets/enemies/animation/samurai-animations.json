@@ -1,0 +1,36 @@
+{
+  "walk": {
+    "frameCount": 8,
+    "loop": true,
+    "defaultSpeed": 8,
+    "frames": [
+      { "lLeg": { "rot": 25 }, "rLeg": { "rot": -25 }, "lArm": { "rot": -15 }, "rArm": { "rot": 15 }, "torso": { "y": 0, "rot": 0 }, "head": { "rot": 0, "y": 0 }, "helmet": { "rot": 0, "y": 0 }, "blade": { "rot": 5 }, "handle": {} },
+      { "lLeg": { "rot": 15 }, "rLeg": { "rot": -15 }, "lArm": { "rot": -10 }, "rArm": { "rot": 10 }, "torso": { "y": 2, "rot": -1 }, "head": { "y": 2 }, "helmet": { "y": 2 }, "blade": { "rot": 3, "y": 2 }, "handle": { "y": 2 } },
+      { "lLeg": { "rot": 0 }, "rLeg": { "rot": 0 }, "lArm": { "rot": 0 }, "rArm": { "rot": 0 }, "torso": { "y": -1 }, "head": { "y": -1 }, "helmet": { "y": -1 }, "blade": { "y": -1 }, "handle": { "y": -1 } },
+      { "lLeg": { "rot": -15 }, "rLeg": { "rot": 15 }, "lArm": { "rot": 10 }, "rArm": { "rot": -10 }, "torso": { "y": -2, "rot": 1 }, "head": { "y": -2 }, "helmet": { "y": -2 }, "blade": { "rot": -3, "y": -2 }, "handle": { "y": -2 } },
+      { "lLeg": { "rot": -25 }, "rLeg": { "rot": 25 }, "lArm": { "rot": 15 }, "rArm": { "rot": -15 }, "torso": { "y": 0 }, "head": { "y": 0 }, "helmet": { "y": 0 }, "blade": { "rot": -5 }, "handle": {} },
+      { "lLeg": { "rot": -15 }, "rLeg": { "rot": 15 }, "lArm": { "rot": 10 }, "rArm": { "rot": -10 }, "torso": { "y": 2, "rot": 1 }, "head": { "y": 2 }, "helmet": { "y": 2 }, "blade": { "rot": -3, "y": 2 }, "handle": { "y": 2 } },
+      { "lLeg": { "rot": 0 }, "rLeg": { "rot": 0 }, "lArm": { "rot": 0 }, "rArm": { "rot": 0 }, "torso": { "y": -1 }, "head": { "y": -1 }, "helmet": { "y": -1 }, "blade": { "y": -1 }, "handle": { "y": -1 } },
+      { "lLeg": { "rot": 15 }, "rLeg": { "rot": -15 }, "lArm": { "rot": -10 }, "rArm": { "rot": 10 }, "torso": { "y": -2, "rot": -1 }, "head": { "y": -2 }, "helmet": { "y": -2 }, "blade": { "rot": 3, "y": -2 }, "handle": { "y": -2 } }
+    ]
+  },
+  "death": {
+    "frameCount": 12,
+    "loop": false,
+    "defaultSpeed": 6,
+    "frames": [
+      { "torso": { "y": 0, "rot": -5 }, "head": { "rot": 10, "y": -2 }, "helmet": { "rot": 12, "y": -3 }, "lLeg": { "rot": 5 }, "rLeg": { "rot": -5 }, "lArm": { "rot": -30 }, "rArm": { "rot": 30 }, "blade": { "rot": 25 }, "handle": { "rot": 10 }, "opacity": 1, "flash": true },
+      { "torso": { "y": 0, "rot": -10 }, "head": { "rot": 15, "y": -3 }, "helmet": { "rot": 18, "y": -5 }, "lLeg": { "rot": 10 }, "rLeg": { "rot": -10 }, "lArm": { "rot": -45, "y": 5 }, "rArm": { "rot": 50, "y": 5 }, "blade": { "rot": 40, "y": 5 }, "handle": { "rot": 15, "y": 5 }, "opacity": 1 },
+      { "torso": { "y": 2, "rot": -18 }, "head": { "rot": 20, "y": -2 }, "helmet": { "rot": 25, "y": -4 }, "lLeg": { "rot": 15 }, "rLeg": { "rot": -8 }, "lArm": { "rot": -55, "y": 10 }, "rArm": { "rot": 70, "y": 15 }, "blade": { "rot": 60, "y": 20 }, "handle": { "rot": 30, "y": 18 }, "opacity": 1 },
+      { "torso": { "y": 8, "rot": -25 }, "head": { "rot": 25, "y": 3 }, "helmet": { "rot": 30, "y": 1 }, "lLeg": { "rot": 25, "y": 5 }, "rLeg": { "rot": -20, "y": 5 }, "lArm": { "rot": -60, "y": 15 }, "rArm": { "rot": 80, "y": 25 }, "blade": { "rot": 80, "y": 35 }, "handle": { "rot": 45, "y": 30 }, "opacity": 1 },
+      { "torso": { "y": 18, "rot": -40 }, "head": { "rot": 30, "y": 10 }, "helmet": { "rot": 35, "y": 8 }, "lLeg": { "rot": 35, "y": 10 }, "rLeg": { "rot": -30, "y": 10 }, "lArm": { "rot": -70, "y": 22 }, "rArm": { "rot": 85, "y": 30 }, "blade": { "rot": 90, "y": 45 }, "handle": { "rot": 50, "y": 40 }, "opacity": 0.95 },
+      { "torso": { "y": 30, "rot": -60 }, "head": { "rot": 35, "y": 22 }, "helmet": { "rot": 40, "y": 18 }, "lLeg": { "rot": 45, "y": 18 }, "rLeg": { "rot": -40, "y": 18 }, "lArm": { "rot": -75, "y": 28 }, "rArm": { "rot": 85, "y": 32 }, "blade": { "rot": 90, "y": 50 }, "handle": { "rot": 55, "y": 45 }, "opacity": 0.9 },
+      { "torso": { "y": 42, "rot": -75 }, "head": { "rot": 38, "y": 34 }, "helmet": { "rot": 42, "y": 30 }, "lLeg": { "rot": 55, "y": 25 }, "rLeg": { "rot": -45, "y": 25 }, "lArm": { "rot": -80, "y": 32 }, "rArm": { "rot": 85, "y": 34 }, "blade": { "rot": 90, "y": 52 }, "handle": { "rot": 58, "y": 48 }, "opacity": 0.85, "flash": true },
+      { "torso": { "y": 46, "rot": -82 }, "head": { "rot": 40, "y": 38 }, "helmet": { "rot": 44, "y": 34 }, "lLeg": { "rot": 60, "y": 28 }, "rLeg": { "rot": -50, "y": 28 }, "lArm": { "rot": -82, "y": 34 }, "rArm": { "rot": 85, "y": 35 }, "blade": { "rot": 90, "y": 53 }, "handle": { "rot": 60, "y": 50 }, "opacity": 0.75 },
+      { "torso": { "y": 48, "rot": -85 }, "head": { "rot": 42, "y": 40 }, "helmet": { "rot": 45, "y": 36 }, "lLeg": { "rot": 62, "y": 30 }, "rLeg": { "rot": -52, "y": 30 }, "lArm": { "rot": -84, "y": 35 }, "rArm": { "rot": 85, "y": 36 }, "blade": { "rot": 90, "y": 54 }, "handle": { "rot": 62, "y": 51 }, "opacity": 0.6 },
+      { "torso": { "y": 49, "rot": -87 }, "head": { "rot": 43, "y": 41 }, "helmet": { "rot": 45, "y": 37 }, "lLeg": { "rot": 63, "y": 31 }, "rLeg": { "rot": -53, "y": 31 }, "lArm": { "rot": -85, "y": 35 }, "rArm": { "rot": 85, "y": 36 }, "blade": { "rot": 90, "y": 55 }, "handle": { "rot": 63, "y": 52 }, "opacity": 0.4 },
+      { "torso": { "y": 50, "rot": -88 }, "head": { "rot": 43, "y": 42 }, "helmet": { "rot": 46, "y": 38 }, "lLeg": { "rot": 64, "y": 32 }, "rLeg": { "rot": -54, "y": 32 }, "lArm": { "rot": -85, "y": 35 }, "rArm": { "rot": 85, "y": 36 }, "blade": { "rot": 90, "y": 55 }, "handle": { "rot": 63, "y": 52 }, "opacity": 0.2 },
+      { "torso": { "y": 50, "rot": -90 }, "head": { "rot": 44, "y": 42 }, "helmet": { "rot": 46, "y": 38 }, "lLeg": { "rot": 65, "y": 33 }, "rLeg": { "rot": -55, "y": 33 }, "lArm": { "rot": -85, "y": 35 }, "rArm": { "rot": 85, "y": 36 }, "blade": { "rot": 90, "y": 55 }, "handle": { "rot": 63, "y": 52 }, "opacity": 0 }
+    ]
+  }
+}

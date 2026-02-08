@@ -6,6 +6,7 @@
 import BaseEntity from './baseEntity.js';
 import Config from '../config.js';
 import { GameEvents } from '../core/EventEmitter.js';
+import { EnemyAnimator, AnimState } from './enemyAnimator.js';
 
 class Enemy extends BaseEntity {
     constructor(x, y, type = 'basic') {
@@ -22,6 +23,10 @@ class Enemy extends BaseEntity {
         this.color = config.color;
         this.health = config.health;
         this.maxHealth = config.health;
+
+        // Animation system
+        this.animator = new EnemyAnimator(type);
+        this.dying = false; // true when playing death animation
     }
 
     /**
@@ -49,6 +54,10 @@ class Enemy extends BaseEntity {
         this.path = params.path || [];
         this.currentPathIndex = 0;
 
+        // Reset animator for this type
+        this.animator.reset(type);
+        this.dying = false;
+
         // Call parent initialize for position and spawn hook
         super.initialize({
             x: params.x,
@@ -68,6 +77,8 @@ class Enemy extends BaseEntity {
     onSpawn() {
         // Reset path progress when spawned
         this.currentPathIndex = 0;
+        this.animator.setState(AnimState.WALK);
+        this.dying = false;
     }
 
     /**
@@ -77,6 +88,7 @@ class Enemy extends BaseEntity {
         // Clear references for garbage collection
         this.path = [];
         this.currentPathIndex = 0;
+        this.dying = false;
     }
 
     /**
@@ -94,8 +106,13 @@ class Enemy extends BaseEntity {
             currentHealth: this.health
         });
 
-        // Emit killed event if health reaches 0
+        // Flash on hit
+        this.animator.flash();
+
+        // Emit killed event and trigger death animation if health reaches 0
         if (this.health <= 0 && previousHealth > 0) {
+            this.dying = true;
+            this.animator.setState(AnimState.DEATH);
             this.events.emit(GameEvents.ENEMY_KILLED, {
                 enemy: this,
                 type: this.type,
@@ -106,6 +123,18 @@ class Enemy extends BaseEntity {
     }
 
     update(deltaTime) {
+        // Update animator regardless of state
+        this.animator.update(deltaTime);
+
+        // If playing death animation, wait until it completes before deactivating
+        if (this.dying) {
+            if (this.animator.isDeathComplete()) {
+                this.active = false;
+                this.dying = false;
+            }
+            return; // Don't move while dying
+        }
+
         // Check if enemy has a path to follow
         if (this.path.length === 0 || !this.active) {
             return;
@@ -157,54 +186,42 @@ class Enemy extends BaseEntity {
     }
 
     render(renderer) {
-        // Draw enemy body
-        renderer.drawRect(this.x, this.y, this.width, this.height, this.color);
+        // Use the animator to render the samurai model
+        // Scale factor maps model to Config enemy size (basic=30px, fast=20px, tank=40px)
+        const scale = this.height / 110; // 110 = model height in local units
+        const ctx = renderer.ctx;
 
-        // Draw health bar
-        const healthBarWidth = this.width;
-        const healthBarHeight = Config.ui.healthBar.height;
-        const healthPercent = this.health / this.maxHealth;
-        const healthBarY = this.y - Config.ui.healthBar.yOffset;
-
-        // Background of health bar (gray)
-        renderer.drawRect(
-            this.x,
-            healthBarY,
-            healthBarWidth,
-            healthBarHeight,
-            Config.ui.healthBar.backgroundColor
+        // Render centered on enemy position (cx = center, cy = bottom of feet)
+        this.animator.render(
+            ctx,
+            this.x + this.width / 2,   // center X
+            this.y + this.height,       // bottom Y (feet)
+            scale
         );
 
-        // Foreground of health bar (green to red based on health)
-        const healthColor = healthPercent > 0.5 ? 'green' :
-                           healthPercent > 0.25 ? 'orange' : 'red';
-        renderer.drawRect(
-            this.x,
-            healthBarY,
-            healthBarWidth * healthPercent,
-            healthBarHeight,
-            healthColor
-        );
+        // Draw health bar (skip if dying)
+        if (!this.dying) {
+            const healthBarWidth = this.width;
+            const healthBarHeight = Config.ui.healthBar.height;
+            const healthPercent = this.health / this.maxHealth;
+            const healthBarY = this.y - Config.ui.healthBar.yOffset;
 
-        // Draw enemy type indicator
-        if (this.type === 'fast') {
-            // Draw speed lines
-            renderer.drawLine(
-                this.x - 5, this.y + this.height / 2,
-                this.x - 10, this.y + this.height / 2 - 3,
-                'white', 1
-            );
-            renderer.drawLine(
-                this.x - 5, this.y + this.height / 2,
-                this.x - 10, this.y + this.height / 2 + 3,
-                'white', 1
-            );
-        } else if (this.type === 'tank') {
-            // Draw armor indicator
             renderer.drawRect(
-                this.x + 2, this.y + 2,
-                this.width - 4, this.height - 4,
-                'rgba(255, 255, 255, 0.3)'
+                this.x,
+                healthBarY,
+                healthBarWidth,
+                healthBarHeight,
+                Config.ui.healthBar.backgroundColor
+            );
+
+            const healthColor = healthPercent > 0.5 ? 'green' :
+                               healthPercent > 0.25 ? 'orange' : 'red';
+            renderer.drawRect(
+                this.x,
+                healthBarY,
+                healthBarWidth * healthPercent,
+                healthBarHeight,
+                healthColor
             );
         }
     }
@@ -233,6 +250,8 @@ class Enemy extends BaseEntity {
         this.path = [];
         this.currentPathIndex = 0;
         this.target = null;
+        this.dying = false;
+        this.animator.reset(type);
     }
 
     /**

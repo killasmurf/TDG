@@ -362,7 +362,7 @@ class EntityManager {
      */
     findEnemiesInRange(x, y, range) {
         return this.enemies.filter(enemy => {
-            if (!enemy.active) return false;
+            if (!enemy.active || enemy.dying) return false;
 
             const dx = enemy.x - x;
             const dy = enemy.y - y;
@@ -384,7 +384,7 @@ class EntityManager {
         let closestDistance = Infinity;
 
         for (const enemy of this.enemies) {
-            if (!enemy.active) continue;
+            if (!enemy.active || enemy.dying) continue;
 
             const dx = enemy.x - x;
             const dy = enemy.y - y;

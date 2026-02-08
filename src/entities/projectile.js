@@ -55,12 +55,12 @@ class Projectile extends BaseEntity {
     }
 
     update(deltaTime) {
-        if (!this.target || !this.target.active) {
-            // Emit missed event if target becomes invalid
+        if (!this.target || !this.target.active || this.target.dying) {
+            // Emit missed event if target becomes invalid or is already dying
             if (this.active) {
                 this.events.emit(GameEvents.PROJECTILE_MISSED, {
                     projectile: this,
-                    reason: this.target ? 'target_inactive' : 'no_target',
+                    reason: this.target ? (this.target.dying ? 'target_dying' : 'target_inactive') : 'no_target',
                     position: { x: this.x, y: this.y }
                 });
             }
