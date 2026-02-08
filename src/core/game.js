@@ -6,7 +6,7 @@ import EntityManager from './entityManager.js';
 import PathManager from '../entities/pathManager.js';
 import Config from '../config.js';
 import WaveManager from './waveManager.js';
-import { gameEvents } from './EventEmitter.js';
+import { gameEvents, GameEvents } from './EventEmitter.js';
 
 class Game extends GameLoop {
     constructor(canvasId = Config.canvas.id) {
@@ -27,6 +27,18 @@ class Game extends GameLoop {
             if (this.waveManager.isAllWavesComplete()) {
                 this.victory();
             }
+        });
+
+        // Listen for enemy events directly via event system
+        gameEvents.on(GameEvents.ENEMY_KILLED, (data) => {
+            this.money += data.reward || 0;
+            this.score += (data.reward || 0) * 10;
+            this.audio.play('enemyDeath');
+        });
+        gameEvents.on(GameEvents.ENEMY_REACHED_END, (data) => {
+            this.lives -= data.damage || 1;
+            this.audio.play('lifeLost');
+            if (this.lives <= 0) this.gameOver();
         });
 
         // Game state

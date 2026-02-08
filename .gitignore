@@ -1,9 +1,8 @@
 # Dependencies
 node_modules/
 
-# Build outputs (except the portable exe we want to keep)
-dist/win-unpacked/
-dist/builder-debug.yml
+# Build outputs
+dist/
 
 # IDE and editor files
 .vscode/

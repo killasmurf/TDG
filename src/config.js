@@ -29,7 +29,7 @@ const Config = {
   game: {
     fps: 60,
     startingLives: 20,
-    startingMoney: 100,
+    startingMoney: 200,
   },
   ui: {
     healthBar: { height: 5, yOffset: 10, backgroundColor: '#555', foregroundColor: '#6bf' },
@@ -51,7 +51,7 @@ const Config = {
   },
   tower: {
     basic: {
-      width: 40, height: 40, damage: 10, range: 100, fireRate: 1000, cost: 50, color: 'blue', projectileSpeed: 300,
+      width: 40, height: 40, damage: 10, range: 150, fireRate: 1000, cost: 50, color: 'blue', projectileSpeed: 300,
       baseStats: { width: 20, height: 20, range: 100, dmg: 5 },
       upgrades: [
         { dmg: 6, range: 110, cost: 50 },
@@ -102,20 +102,33 @@ const Config = {
 Config.waves = [
   {
     enemies: [
+      { type: 'basic', count: 3, interval: 1.5 },
+    ],
+  },
+  {
+    enemies: [
       { type: 'basic', count: 5, interval: 1.0 },
-      { type: 'fast', count: 2, interval: 3.0 },
+      { type: 'fast', count: 2, interval: 2.0 },
     ],
   },
   {
     enemies: [
       { type: 'basic', count: 8, interval: 0.8 },
-      { type: 'fast', count: 4, interval: 2.5 },
+      { type: 'fast', count: 4, interval: 1.5 },
     ],
   },
   {
     enemies: [
-      { type: 'tank', count: 3, interval: 2.5 },
-      { type: 'basic', count: 12, interval: 0.6 },
+      { type: 'tank', count: 2, interval: 3.0 },
+      { type: 'basic', count: 6, interval: 0.8 },
+      { type: 'fast', count: 4, interval: 1.0 },
+    ],
+  },
+  {
+    enemies: [
+      { type: 'tank', count: 4, interval: 2.0 },
+      { type: 'basic', count: 10, interval: 0.6 },
+      { type: 'fast', count: 6, interval: 0.8 },
     ],
   },
 ];

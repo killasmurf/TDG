@@ -1,0 +1,58 @@
+# Material file for Pixel Art Samurai Enemy
+# Flat-shaded materials for pixel art style
+
+newmtl ArmorDark
+Ka 0.173 0.243 0.314
+Kd 0.173 0.243 0.314
+Ks 0.0 0.0 0.0
+Ns 0.0
+d 1.0
+illum 1
+
+newmtl ArmorAccent
+Ka 0.545 0.000 0.000
+Kd 0.545 0.000 0.000
+Ks 0.0 0.0 0.0
+Ns 0.0
+d 1.0
+illum 1
+
+newmtl ClothBlack
+Ka 0.102 0.102 0.102
+Kd 0.102 0.102 0.102
+Ks 0.0 0.0 0.0
+Ns 0.0
+d 1.0
+illum 1
+
+newmtl Skin
+Ka 0.831 0.647 0.455
+Kd 0.831 0.647 0.455
+Ks 0.0 0.0 0.0
+Ns 0.0
+d 1.0
+illum 1
+
+newmtl Metal
+Ka 0.753 0.753 0.753
+Kd 0.753 0.753 0.753
+Ks 0.1 0.1 0.1
+Ns 10.0
+d 1.0
+illum 2
+
+newmtl Helmet
+Ka 0.204 0.286 0.369
+Kd 0.204 0.286 0.369
+Ks 0.0 0.0 0.0
+Ns 0.0
+d 1.0
+illum 1
+
+newmtl HandleBlack
+Ka 0.102 0.102 0.102
+Kd 0.102 0.102 0.102
+Ks 0.0 0.0 0.0
+Ns 0.0
+d 1.0
+illum 1
