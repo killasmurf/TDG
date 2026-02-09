@@ -1,0 +1,328 @@
+{
+  "towerType": "church",
+  "displayName": "Church Tower",
+  "description": "Gothic cathedral towers that bless allies and smite enemies with divine light",
+  "theme": "support",
+  
+  "tiers": {
+    "T1": {
+      "name": "Chapel",
+      "displayName": "Chapel Bell Tower",
+      "description": "Simple stone chapel with single bell. Provides basic healing and minor damage to nearby enemies.",
+      "cost": 150,
+      "modelPath": "assets/models/church_tower_t1.obj",
+      "texturePath": "assets/models/church_tower_t1.mtl",
+      
+      "stats": {
+        "range": 5.0,
+        "damage": 8,
+        "attackSpeed": 1.5,
+        "healPerSecond": 5,
+        "healRange": 4.0,
+        "blessingDuration": 3.0
+      },
+      
+      "animations": {
+        "idle": {
+          "frames": 4,
+          "fps": 8,
+          "loop": true,
+          "keyframes": [
+            { "bell": { "rotation": 0, "y": 0 } },
+            { "bell": { "rotation": 3, "y": 1 } },
+            { "bell": { "rotation": 0, "y": 0 } },
+            { "bell": { "rotation": -3, "y": 1 } }
+          ]
+        },
+        "blessing": {
+          "frames": 9,
+          "fps": 12,
+          "loop": false,
+          "keyframes": [
+            { "bell": { "rotation": 0 }, "light": 0, "glow": 0 },
+            { "bell": { "rotation": 15 }, "light": 0.3, "glow": 0.4 },
+            { "bell": { "rotation": 25 }, "light": 0.6, "glow": 0.7 },
+            { "bell": { "rotation": 20 }, "light": 0.8, "glow": 1.0 },
+            { "bell": { "rotation": -20 }, "light": 1.0, "glow": 0.9 },
+            { "bell": { "rotation": -25 }, "light": 0.8, "glow": 0.7 },
+            { "bell": { "rotation": -15 }, "light": 0.5, "glow": 0.4 },
+            { "bell": { "rotation": 0 }, "light": 0.2, "glow": 0.1 },
+            { "bell": { "rotation": 0 }, "light": 0, "glow": 0 }
+          ]
+        }
+      },
+      
+      "effects": {
+        "blessing": {
+          "particles": {
+            "type": "angelic",
+            "count": 12,
+            "color": "#ffffdd",
+            "lifetime": 1.5,
+            "spread": 2.0
+          },
+          "lightBeams": {
+            "count": 3,
+            "color": "#fff8dc",
+            "intensity": 0.8,
+            "width": 1.5
+          },
+          "sound": "church_bell_single"
+        },
+        "ambient": {
+          "glow": {
+            "color": "#ffffcc",
+            "intensity": 0.1,
+            "radius": 3.0
+          }
+        }
+      },
+      
+      "upgrade": {
+        "to": "T2",
+        "cost": 300
+      }
+    },
+    
+    "T2": {
+      "name": "Parish",
+      "displayName": "Parish Church",
+      "description": "Twin bell towers with rose window. Enhanced healing aura and divine damage strikes.",
+      "cost": 450,
+      "modelPath": "assets/models/church_tower_t2.obj",
+      "texturePath": "assets/models/church_tower_t2.mtl",
+      
+      "stats": {
+        "range": 6.5,
+        "damage": 18,
+        "attackSpeed": 1.3,
+        "healPerSecond": 12,
+        "healRange": 5.5,
+        "blessingDuration": 4.0,
+        "armorBuff": 2
+      },
+      
+      "animations": {
+        "idle": {
+          "frames": 4,
+          "fps": 8,
+          "loop": true,
+          "keyframes": [
+            { "bellL": { "rotation": 0 }, "bellR": { "rotation": 0 } },
+            { "bellL": { "rotation": 5 }, "bellR": { "rotation": -5 } },
+            { "bellL": { "rotation": 0 }, "bellR": { "rotation": 0 } },
+            { "bellL": { "rotation": -5 }, "bellR": { "rotation": 5 } }
+          ]
+        },
+        "blessing": {
+          "frames": 9,
+          "fps": 10,
+          "loop": false,
+          "keyframes": [
+            { "bellL": { "rotation": 0 }, "bellR": { "rotation": 0 }, "light": 0, "glow": 0 },
+            { "bellL": { "rotation": 20 }, "bellR": { "rotation": 10 }, "light": 0.4, "glow": 0.5 },
+            { "bellL": { "rotation": 30 }, "bellR": { "rotation": 20 }, "light": 0.7, "glow": 0.8 },
+            { "bellL": { "rotation": 25 }, "bellR": { "rotation": 30 }, "light": 1.0, "glow": 1.0 },
+            { "bellL": { "rotation": -25 }, "bellR": { "rotation": -25 }, "light": 1.0, "glow": 1.0 },
+            { "bellL": { "rotation": -30 }, "bellR": { "rotation": -20 }, "light": 0.8, "glow": 0.8 },
+            { "bellL": { "rotation": -20 }, "bellR": { "rotation": -10 }, "light": 0.5, "glow": 0.5 },
+            { "bellL": { "rotation": -10 }, "bellR": { "rotation": 0 }, "light": 0.2, "glow": 0.2 },
+            { "bellL": { "rotation": 0 }, "bellR": { "rotation": 0 }, "light": 0, "glow": 0 }
+          ]
+        }
+      },
+      
+      "effects": {
+        "blessing": {
+          "particles": {
+            "type": "angelic",
+            "count": 24,
+            "color": "#ffffdd",
+            "lifetime": 2.0,
+            "spread": 3.0
+          },
+          "lightBeams": {
+            "count": 6,
+            "color": "#fff8dc",
+            "intensity": 1.0,
+            "width": 2.0
+          },
+          "sound": "church_bell_double"
+        },
+        "ambient": {
+          "glow": {
+            "color": "#ffffcc",
+            "intensity": 0.15,
+            "radius": 4.5
+          }
+        }
+      },
+      
+      "upgrade": {
+        "to": "T3",
+        "cost": 600
+      }
+    },
+    
+    "T3": {
+      "name": "Cathedral",
+      "displayName": "Grand Cathedral",
+      "description": "Magnificent cathedral with central spire and twin towers. Mass healing and devastating holy smite.",
+      "cost": 1050,
+      "modelPath": "assets/models/church_tower_t3.obj",
+      "texturePath": "assets/models/church_tower_t3.mtl",
+      
+      "stats": {
+        "range": 8.0,
+        "damage": 35,
+        "attackSpeed": 1.0,
+        "healPerSecond": 25,
+        "healRange": 7.0,
+        "blessingDuration": 5.0,
+        "armorBuff": 5,
+        "damageBoost": 10
+      },
+      
+      "abilities": {
+        "holySmite": {
+          "cooldown": 15.0,
+          "damage": 150,
+          "radius": 4.0,
+          "stunDuration": 1.5,
+          "description": "Calls down divine wrath, dealing massive damage and stunning enemies"
+        },
+        "sanctuaryAura": {
+          "radius": 8.0,
+          "healBoost": 1.5,
+          "damageReduction": 0.2,
+          "description": "Allies within range receive enhanced healing and damage reduction"
+        }
+      },
+      
+      "animations": {
+        "idle": {
+          "frames": 4,
+          "fps": 8,
+          "loop": true,
+          "keyframes": [
+            { "bellL": { "rotation": 0 }, "bellR": { "rotation": 0 }, "bellC": { "rotation": 0 }, "glow": 0.1 },
+            { "bellL": { "rotation": 4 }, "bellR": { "rotation": -4 }, "bellC": { "rotation": 2 }, "glow": 0.15 },
+            { "bellL": { "rotation": 0 }, "bellR": { "rotation": 0 }, "bellC": { "rotation": 0 }, "glow": 0.1 },
+            { "bellL": { "rotation": -4 }, "bellR": { "rotation": 4 }, "bellC": { "rotation": -2 }, "glow": 0.15 }
+          ]
+        },
+        "blessing": {
+          "frames": 11,
+          "fps": 8,
+          "loop": false,
+          "keyframes": [
+            { "bellL": { "rotation": 0 }, "bellR": { "rotation": 0 }, "bellC": { "rotation": 0 }, "light": 0, "glow": 0 },
+            { "bellL": { "rotation": 15 }, "bellR": { "rotation": 15 }, "bellC": { "rotation": 10 }, "light": 0.3, "glow": 0.4 },
+            { "bellL": { "rotation": 25 }, "bellR": { "rotation": 25 }, "bellC": { "rotation": 20 }, "light": 0.6, "glow": 0.7 },
+            { "bellL": { "rotation": 35 }, "bellR": { "rotation": 30 }, "bellC": { "rotation": 35 }, "light": 0.9, "glow": 1.0 },
+            { "bellL": { "rotation": 30 }, "bellR": { "rotation": 35 }, "bellC": { "rotation": 30 }, "light": 1.0, "glow": 1.0 },
+            { "bellL": { "rotation": -30 }, "bellR": { "rotation": -30 }, "bellC": { "rotation": -35 }, "light": 1.0, "glow": 1.0 },
+            { "bellL": { "rotation": -35 }, "bellR": { "rotation": -25 }, "bellC": { "rotation": -30 }, "light": 0.9, "glow": 0.9 },
+            { "bellL": { "rotation": -25 }, "bellR": { "rotation": -20 }, "bellC": { "rotation": -20 }, "light": 0.6, "glow": 0.6 },
+            { "bellL": { "rotation": -15 }, "bellR": { "rotation": -10 }, "bellC": { "rotation": -10 }, "light": 0.3, "glow": 0.3 },
+            { "bellL": { "rotation": -5 }, "bellR": { "rotation": 0 }, "bellC": { "rotation": 0 }, "light": 0.1, "glow": 0.1 },
+            { "bellL": { "rotation": 0 }, "bellR": { "rotation": 0 }, "bellC": { "rotation": 0 }, "light": 0, "glow": 0 }
+          ]
+        },
+        "holySmite": {
+          "frames": 8,
+          "fps": 15,
+          "loop": false,
+          "keyframes": [
+            { "charge": 0, "glow": 0.5 },
+            { "charge": 0.3, "glow": 0.7 },
+            { "charge": 0.6, "glow": 0.9 },
+            { "charge": 1.0, "glow": 1.0 },
+            { "smite": true, "glow": 1.5 },
+            { "smite": false, "glow": 1.2 },
+            { "glow": 0.6 },
+            { "glow": 0.1 }
+          ]
+        }
+      },
+      
+      "effects": {
+        "blessing": {
+          "particles": {
+            "type": "angelic",
+            "count": 48,
+            "color": "#ffffdd",
+            "lifetime": 2.5,
+            "spread": 4.0
+          },
+          "lightBeams": {
+            "count": 12,
+            "color": "#fff8dc",
+            "intensity": 1.2,
+            "width": 2.5
+          },
+          "sound": "church_bell_cathedral"
+        },
+        "holySmite": {
+          "particles": {
+            "type": "divine_explosion",
+            "count": 80,
+            "colors": ["#ffffff", "#ffffcc", "#ffdd88"],
+            "lifetime": 1.0,
+            "spread": 4.0
+          },
+          "flash": {
+            "color": "#ffffff",
+            "intensity": 2.0,
+            "duration": 0.3
+          },
+          "sound": "holy_smite"
+        },
+        "ambient": {
+          "glow": {
+            "color": "#ffffcc",
+            "intensity": 0.2,
+            "radius": 6.0
+          },
+          "lightRays": {
+            "count": 4,
+            "color": "#fff8dc",
+            "intensity": 0.3
+          }
+        }
+      }
+    }
+  },
+  
+  "ai": {
+    "targeting": {
+      "priority": "healAllies",
+      "secondaryPriority": "damageEnemies",
+      "healThreshold": 0.7,
+      "preferGroupedEnemies": true
+    },
+    "abilityUsage": {
+      "holySmite": {
+        "minEnemyCount": 3,
+        "healthThreshold": 0.5,
+        "prioritizeBosses": true
+      }
+    }
+  },
+  
+  "sounds": {
+    "church_bell_single": "assets/sounds/church_bell_01.ogg",
+    "church_bell_double": "assets/sounds/church_bell_02.ogg",
+    "church_bell_cathedral": "assets/sounds/church_bell_03.ogg",
+    "holy_smite": "assets/sounds/holy_smite.ogg",
+    "ambient_chant": "assets/sounds/ambient_chant_loop.ogg"
+  },
+  
+  "visualConfig": {
+    "stainedGlassGlow": true,
+    "dynamicShadows": true,
+    "lightRayQuality": "high",
+    "particleQuality": "medium",
+    "bellPhysics": true
+  }
+}

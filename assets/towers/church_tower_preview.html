@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Church Tower 3D Preview - TDG</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Courier New', monospace;
+            background: #0a0e14;
+            color: #c8d0d8;
+            overflow: hidden;
+        }
+        
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
+        }
+        
+        #controls {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.85);
+            padding: 24px;
+            border-radius: 8px;
+            min-width: 280px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        h1 {
+            font-size: 18px;
+            color: #e8b059;
+            margin-bottom: 8px;
+            letter-spacing: 0.05em;
+        }
+        
+        .subtitle {
+            font-size: 11px;
+            color: #5a6a7a;
+            margin-bottom: 20px;
+            letter-spacing: 0.08em;
+        }
+        
+        .control-group {
+            margin-bottom: 20px;
+        }
+        
+        .label {
+            display: block;
+            font-size: 11px;
+            color: #7a8a9a;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        
+        .button-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 8px 16px;
+            background: #2a2a3a;
+            color: #c8d0d8;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 11px;
+            letter-spacing: 0.05em;
+            transition: all 0.2s;
+        }
+        
+        button:hover {
+            background: #3a3a4a;
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        button.active {
+            background: #4a9eff;
+            color: #000;
+            border-color: #4a9eff;
+            font-weight: bold;
+        }
+        
+        .blessing-btn {
+            width: 100%;
+            background: #6a4a9a;
+            color: #fff;
+            font-size: 13px;
+            padding: 12px;
+            font-weight: bold;
+        }
+        
+        .blessing-btn:hover {
+            background: #7a5aaa;
+        }
+        
+        .blessing-btn:disabled {
+            background: #3a3a4a;
+            color: #666;
+            cursor: not-allowed;
+        }
+        
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            font-size: 11px;
+            color: #c8d0d8;
+            cursor: pointer;
+            margin-bottom: 8px;
+        }
+        
+        .checkbox-label input {
+            margin-right: 8px;
+        }
+        
+        .info-box {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 12px;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .info-title {
+            font-size: 10px;
+            color: #5a6a7a;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+        
+        .info-text {
+            font-size: 12px;
+            color: #c8d0d8;
+        }
+        
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            margin-bottom: 4px;
+        }
+        
+        .stat-label {
+            color: #7a8a9a;
+        }
+        
+        .stat-value {
+            color: #4a9eff;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas-container"></div>
+    
+    <div id="controls">
+        <h1>⛪ CHURCH TOWER PREVIEW</h1>
+        <div class="subtitle">TDG — GOTHIC ARCHITECTURE SYSTEM</div>
+        
+        <div class="control-group">
+            <span class="label">Tower Tier</span>
+            <div class="button-row">
+                <button id="btn-t1" class="tier-btn active" data-tier="T1">T1</button>
+                <button id="btn-t2" class="tier-btn" data-tier="T2">T2</button>
+                <button id="btn-t3" class="tier-btn" data-tier="T3">T3</button>
+            </div>
+        </div>
+        
+        <div class="control-group">
+            <button id="btn-blessing" class="blessing-btn">✝ TRIGGER BLESSING</button>
+        </div>
+        
+        <div class="control-group">
+            <label class="checkbox-label">
+                <input type="checkbox" id="chk-rotate">
+                Auto Rotate
+            </label>
+            <label class="checkbox-label">
+                <input type="checkbox" id="chk-wireframe">
+                Wireframe Mode
+            </label>
+            <label class="checkbox-label">
+                <input type="checkbox" id="chk-lighting" checked>
+                Divine Lighting
+            </label>
+        </div>
+        
+        <div class="info-box">
+            <div class="info-title">TOWER INFO</div>
+            <div id="tower-info" class="info-text">
+                🔔 Chapel - Simple Bell Tower
+            </div>
+            <div style="margin-top: 12px;">
+                <div class="stat-row">
+                    <span class="stat-label">Range:</span>
+                    <span class="stat-value" id="stat-range">5.0</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Damage:</span>
+                    <span class="stat-value" id="stat-damage">8</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Heal/sec:</span>
+                    <span class="stat-value" id="stat-heal">5</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // ─── Scene Setup ───
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x0a0e14);
+        scene.fog = new THREE.Fog(0x0a0e14, 10, 50);
+        
+        const camera = new THREE.PerspectiveCamera(
+            50,
+            window.innerWidth / window.innerHeight,
+            0.1,
+            1000
+        );
+        camera.position.set(8, 6, 8);
+        camera.lookAt(0, 3, 0);
+        
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+        
+        // ─── Lighting ───
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+        scene.add(ambientLight);
+        
+        const sunLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        sunLight.position.set(5, 10, 5);
+        sunLight.castShadow = true;
+        sunLight.shadow.mapSize.width = 2048;
+        sunLight.shadow.mapSize.height = 2048;
+        scene.add(sunLight);
+        
+        const fillLight = new THREE.DirectionalLight(0xb8d4ff, 0.3);
+        fillLight.position.set(-5, 5, -5);
+        scene.add(fillLight);
+        
+        // Divine light (initially hidden)
+        const divineLight = new THREE.PointLight(0xffffcc, 0, 15);
+        divineLight.position.set(0, 8, 0);
+        scene.add(divineLight);
+        
+        const spotlight = new THREE.SpotLight(0xfff8dc, 0, 20, Math.PI / 3, 0.5);
+        spotlight.position.set(0, 12, 0);
+        spotlight.target.position.set(0, 0, 0);
+        scene.add(spotlight);
+        scene.add(spotlight.target);
+        
+        // ─── Ground ───
+        const groundGeometry = new THREE.PlaneGeometry(20, 20);
+        const groundMaterial = new THREE.MeshStandardMaterial({ 
+            color: 0x3a4a3a,
+            roughness: 0.8
+        });
+        const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+        ground.rotation.x = -Math.PI / 2;
+        ground.position.y = -0.1;
+        ground.receiveShadow = true;
+        scene.add(ground);
+        
+        // ─── Tower Models (Procedural Geometry) ───
+        let currentTower = null;
+        let bellObjects = [];
+        
+        function createT1Chapel() {
+            const group = new THREE.Group();
+            const materials = {
+                stone: new THREE.MeshStandardMaterial({ color: 0x8a7d6f }),
+                stoneDark: new THREE.MeshStandardMaterial({ color: 0x6a5d4f }),
+                stoneLight: new THREE.MeshStandardMaterial({ color: 0x9a8d7f }),
+                slate: new THREE.MeshStandardMaterial({ color: 0x3a2a2a }),
+                gold: new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.8, roughness: 0.2 }),
+                wood: new THREE.MeshStandardMaterial({ color: 0x8B7355 }),
+                glassBlue: new THREE.MeshStandardMaterial({ color: 0x4a6a9a, transparent: true, opacity: 0.7 }),
+                glassRed: new THREE.MeshStandardMaterial({ color: 0x9a4a6a, transparent: true, opacity: 0.7 }),
+                dark: new THREE.MeshStandardMaterial({ color: 0x2a2a2a })
+            };
+            
+            // Base
+            const base = new THREE.Mesh(new THREE.BoxGeometry(3.2, 0.5, 3.2), materials.stone);
+            base.position.y = 0.6;
+            group.add(base);
+            
+            // Foundation
+            const foundation = new THREE.Mesh(new THREE.BoxGeometry(3.5, 0.4, 3.5), materials.stoneDark);
+            foundation.position.y = 1.3;
+            group.add(foundation);
+            
+            // Wall
+            const wall = new THREE.Mesh(new THREE.BoxGeometry(3.0, 1.85, 3.0), materials.stoneLight);
+            wall.position.y = 3.65;
+            group.add(wall);
+            
+            // Roof
+            const roofGeom = new THREE.ConeGeometry(1.4, 1.25, 4);
+            const roof = new THREE.Mesh(roofGeom, materials.slate);
+            roof.position.y = 5.5;
+            roof.rotation.y = Math.PI / 4;
+            group.add(roof);
+            
+            // Bell
+            const bellGeom = new THREE.SphereGeometry(0.25, 8, 6);
+            const bell = new THREE.Mesh(bellGeom, materials.wood);
+            bell.position.y = 5.0;
+            bell.scale.y = 1.2;
+            bell.userData.isBell = true;
+            group.add(bell);
+            bellObjects.push(bell);
+            
+            // Cross
+            const crossV = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.9, 0.2), materials.gold);
+            crossV.position.set(0, 6.75, 0);
+            const crossH = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.2, 0.2), materials.gold);
+            crossH.position.set(0, 6.55, 0);
+            group.add(crossV);
+            group.add(crossH);
+            
+            return group;
+        }
+        
+        function createT2Parish() {
+            const group = new THREE.Group();
+            const materials = {
+                stone: new THREE.MeshStandardMaterial({ color: 0x8a7d6f }),
+                stoneDark: new THREE.MeshStandardMaterial({ color: 0x6a5d4f }),
+                stoneLight: new THREE.MeshStandardMaterial({ color: 0x9a8d7f }),
+                slate: new THREE.MeshStandardMaterial({ color: 0x3a2a2a }),
+                slateDark: new THREE.MeshStandardMaterial({ color: 0x2a2a2a }),
+                gold: new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.8, roughness: 0.2 }),
+                wood: new THREE.MeshStandardMaterial({ color: 0x8B7355 })
+            };
+            
+            // Base
+            const base = new THREE.Mesh(new THREE.BoxGeometry(4.0, 0.6, 4.0), materials.stone);
+            base.position.y = 0.6;
+            group.add(base);
+            
+            // Main nave
+            const nave = new THREE.Mesh(new THREE.BoxGeometry(3.5, 2.15, 3.5), materials.stoneLight);
+            nave.position.y = 4.35;
+            group.add(nave);
+            
+            // Main roof
+            const roofGeom = new THREE.ConeGeometry(1.65, 1.25, 4);
+            const roof = new THREE.Mesh(roofGeom, materials.slate);
+            roof.position.y = 6.45;
+            roof.rotation.y = Math.PI / 4;
+            group.add(roof);
+            
+            // Left tower
+            const towerL = new THREE.Mesh(new THREE.BoxGeometry(0.9, 1.5, 0.9), materials.stone);
+            towerL.position.set(-1.9, 6.75, 0);
+            group.add(towerL);
+            
+            const bellL = new THREE.Mesh(new THREE.SphereGeometry(0.15, 8, 6), materials.wood);
+            bellL.position.set(-1.9, 6.65, 0);
+            bellL.userData.isBell = true;
+            group.add(bellL);
+            bellObjects.push(bellL);
+            
+            const spireL = new THREE.Mesh(new THREE.ConeGeometry(0.25, 1.0, 4), materials.slateDark);
+            spireL.position.set(-1.9, 8.1, 0);
+            spireL.rotation.y = Math.PI / 4;
+            group.add(spireL);
+            
+            // Right tower
+            const towerR = new THREE.Mesh(new THREE.BoxGeometry(0.9, 1.5, 0.9), materials.stone);
+            towerR.position.set(1.9, 6.75, 0);
+            group.add(towerR);
+            
+            const bellR = new THREE.Mesh(new THREE.SphereGeometry(0.15, 8, 6), materials.wood);
+            bellR.position.set(1.9, 6.65, 0);
+            bellR.userData.isBell = true;
+            group.add(bellR);
+            bellObjects.push(bellR);
+            
+            const spireR = new THREE.Mesh(new THREE.ConeGeometry(0.25, 1.0, 4), materials.slateDark);
+            spireR.position.set(1.9, 8.1, 0);
+            spireR.rotation.y = Math.PI / 4;
+            group.add(spireR);
+            
+            // Crosses
+            const crossLV = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.7, 0.2), materials.gold);
+            crossLV.position.set(-1.9, 9.05, 0);
+            const crossLH = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.2, 0.2), materials.gold);
+            crossLH.position.set(-1.9, 8.85, 0);
+            group.add(crossLV, crossLH);
+            
+            const crossRV = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.7, 0.2), materials.gold);
+            crossRV.position.set(1.9, 9.05, 0);
+            const crossRH = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.2, 0.2), materials.gold);
+            crossRH.position.set(1.9, 8.85, 0);
+            group.add(crossRV, crossRH);
+            
+            return group;
+        }
+        
+        function createT3Cathedral() {
+            const group = new THREE.Group();
+            const materials = {
+                stone: new THREE.MeshStandardMaterial({ color: 0x8a7d6f }),
+                stoneDark: new THREE.MeshStandardMaterial({ color: 0x6a5d4f }),
+                stoneLight: new THREE.MeshStandardMaterial({ color: 0x9a8d7f }),
+                slate: new THREE.MeshStandardMaterial({ color: 0x3a2a2a }),
+                slateDark: new THREE.MeshStandardMaterial({ color: 0x2a2a2a }),
+                gold: new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.8, roughness: 0.2 }),
+                wood: new THREE.MeshStandardMaterial({ color: 0x8B7355 })
+            };
+            
+            // Base
+            const base = new THREE.Mesh(new THREE.BoxGeometry(4.8, 0.75, 4.8), materials.stone);
+            base.position.y = 0.75;
+            group.add(base);
+            
+            // Cathedral body
+            const cathedral = new THREE.Mesh(new THREE.BoxGeometry(4.4, 2.85, 4.4), materials.stoneLight);
+            cathedral.position.y = 5.35;
+            group.add(cathedral);
+            
+            // Main roof
+            const roof = new THREE.Mesh(new THREE.ConeGeometry(2.0, 1.5, 4), materials.slate);
+            roof.position.y = 7.95;
+            roof.rotation.y = Math.PI / 4;
+            group.add(roof);
+            
+            // Side towers
+            const towerL = new THREE.Mesh(new THREE.BoxGeometry(1.1, 1.75, 1.1), materials.stone);
+            towerL.position.set(-2.3, 8.5, 0);
+            group.add(towerL);
+            
+            const bellL = new THREE.Mesh(new THREE.SphereGeometry(0.2, 8, 6), materials.wood);
+            bellL.position.set(-2.3, 8.3, 0);
+            bellL.userData.isBell = true;
+            group.add(bellL);
+            bellObjects.push(bellL);
+            
+            const spireL = new THREE.Mesh(new THREE.ConeGeometry(0.35, 1.25, 4), materials.slateDark);
+            spireL.position.set(-2.3, 10.13, 0);
+            spireL.rotation.y = Math.PI / 4;
+            group.add(spireL);
+            
+            const towerR = new THREE.Mesh(new THREE.BoxGeometry(1.1, 1.75, 1.1), materials.stone);
+            towerR.position.set(2.3, 8.5, 0);
+            group.add(towerR);
+            
+            const bellR = new THREE.Mesh(new THREE.SphereGeometry(0.2, 8, 6), materials.wood);
+            bellR.position.set(2.3, 8.3, 0);
+            bellR.userData.isBell = true;
+            group.add(bellR);
+            bellObjects.push(bellR);
+            
+            const spireR = new THREE.Mesh(new THREE.ConeGeometry(0.35, 1.25, 4), materials.slateDark);
+            spireR.position.set(2.3, 10.13, 0);
+            spireR.rotation.y = Math.PI / 4;
+            group.add(spireR);
+            
+            // Central tower (tallest)
+            const centralTower = new THREE.Mesh(new THREE.BoxGeometry(1.4, 2.25, 1.4), materials.stone);
+            centralTower.position.y = 9.95;
+            group.add(centralTower);
+            
+            const bellC = new THREE.Mesh(new THREE.SphereGeometry(0.3, 8, 6), materials.wood);
+            bellC.position.y = 9.75;
+            bellC.userData.isBell = true;
+            group.add(bellC);
+            bellObjects.push(bellC);
+            
+            const centralSpire = new THREE.Mesh(new THREE.ConeGeometry(0.5, 1.5, 4), materials.slateDark);
+            centralSpire.position.y = 11.95;
+            centralSpire.rotation.y = Math.PI / 4;
+            group.add(centralSpire);
+            
+            // Crosses
+            const crossCV = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.9, 0.2), materials.gold);
+            crossCV.position.y = 13.45;
+            const crossCH = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.2, 0.2), materials.gold);
+            crossCH.position.y = 13.2;
+            group.add(crossCV, crossCH);
+            
+            return group;
+        }
+        
+        // ─── Tower Management ───
+        const towerInfo = {
+            T1: {
+                name: '🔔 Chapel - Simple Bell Tower',
+                range: '5.0',
+                damage: '8',
+                heal: '5'
+            },
+            T2: {
+                name: '🔔🔔 Parish - Twin Towers',
+                range: '6.5',
+                damage: '18',
+                heal: '12'
+            },
+            T3: {
+                name: '🔔🔔🔔 Cathedral - Central Spire',
+                range: '8.0',
+                damage: '35',
+                heal: '25'
+            }
+        };
+        
+        function loadTower(tier) {
+            if (currentTower) {
+                scene.remove(currentTower);
+            }
+            bellObjects = [];
+            
+            if (tier === 'T1') {
+                currentTower = createT1Chapel();
+            } else if (tier === 'T2') {
+                currentTower = createT2Parish();
+            } else {
+                currentTower = createT3Cathedral();
+            }
+            
+            currentTower.scale.set(0.5, 0.5, 0.5);
+            scene.add(currentTower);
+            
+            // Update UI
+            document.getElementById('tower-info').textContent = towerInfo[tier].name;
+            document.getElementById('stat-range').textContent = towerInfo[tier].range;
+            document.getElementById('stat-damage').textContent = towerInfo[tier].damage;
+            document.getElementById('stat-heal').textContent = towerInfo[tier].heal;
+        }
+        
+        // ─── Animation State ───
+        let animationState = 'idle';
+        let animTime = 0;
+        let autoRotate = false;
+        let blessingActive = false;
+        
+        function triggerBlessing() {
+            if (blessingActive) return;
+            blessingActive = true;
+            animationState = 'blessing';
+            animTime = 0;
+            
+            document.getElementById('btn-blessing').disabled = true;
+            
+            setTimeout(() => {
+                animationState = 'idle';
+                blessingActive = false;
+                document.getElementById('btn-blessing').disabled = false;
+            }, 3000);
+        }
+        
+        // ─── Animation Loop ───
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            const delta = 0.016;
+            
+            if (animationState === 'blessing') {
+                animTime += delta * 6;
+                
+                // Update bells
+                bellObjects.forEach((bell, idx) => {
+                    const swing = Math.sin(animTime + idx * 0.5) * 0.4;
+                    bell.rotation.x = swing;
+                });
+                
+                // Divine light
+                divineLight.intensity = Math.sin(animTime) * 0.5 + 1;
+                spotlight.intensity = Math.sin(animTime * 0.5) * 0.8 + 0.5;
+            } else {
+                animTime += delta * 2;
+                
+                // Idle sway
+                bellObjects.forEach((bell, idx) => {
+                    const sway = Math.sin(animTime + idx * 0.3) * 0.05;
+                    bell.rotation.x = sway;
+                });
+                
+                divineLight.intensity = 0;
+                spotlight.intensity = 0;
+            }
+            
+            // Auto rotate
+            if (autoRotate && currentTower) {
+                currentTower.rotation.y += 0.005;
+            }
+            
+            renderer.render(scene, camera);
+        }
+        
+        // ─── Controls ───
+        document.querySelectorAll('.tier-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.tier-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                loadTower(e.target.dataset.tier);
+            });
+        });
+        
+        document.getElementById('btn-blessing').addEventListener('click', triggerBlessing);
+        
+        document.getElementById('chk-rotate').addEventListener('change', (e) => {
+            autoRotate = e.target.checked;
+        });
+        
+        document.getElementById('chk-wireframe').addEventListener('change', (e) => {
+            if (currentTower) {
+                currentTower.traverse((child) => {
+                    if (child.isMesh) {
+                        child.material.wireframe = e.target.checked;
+                    }
+                });
+            }
+        });
+        
+        document.getElementById('chk-lighting').addEventListener('change', (e) => {
+            sunLight.intensity = e.target.checked ? 0.8 : 0.3;
+            fillLight.intensity = e.target.checked ? 0.3 : 0.1;
+        });
+        
+        // Window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+        
+        // ─── Initialize ───
+        loadTower('T1');
+        animate();
+    </script>
+</body>
+</html>
