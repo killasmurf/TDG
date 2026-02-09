@@ -1,8 +1,8 @@
 # TO_DO List (TDG)
 
 ## Critical Issues
-- [ ] **Tower upgrade cost is not deducted** when an upgrade is applied. This breaks the upgrade mechanic and money system.
-- [ ] **Saved towers lose `tier` information** after re‑loading a game. Persisting tower tiers is essential for gameplay continuity.
+- [x] **Tower upgrade cost is not deducted** when an upgrade is applied. This breaks the upgrade mechanic and money system.
+- [x] **Saved towers lose `tier` information** after re‑loading a game. Persisting tower tiers is essential for gameplay continuity.
 
 ## Other Actions
 - [ ] Review and update upgrade system logic (tier 1–3). Ensure cost calculation and payment are handled correctly.
