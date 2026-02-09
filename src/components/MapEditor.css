@@ -1,0 +1,12 @@
+.map-editor {
+  font-family: Arial, sans-serif;
+  padding: 1rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.canvas-container {
+  margin-top: 1rem;
+  border: 1px solid #333;
+  display: inline-block;
+}
