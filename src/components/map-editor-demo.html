@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TDG Map Editor - Demo</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #0a0e14;
+      color: #c8d0d8;
+    }
+
+    #root {
+      min-height: 100vh;
+    }
+
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      font-size: 18px;
+      color: #4a9eff;
+    }
+
+    .loading::before {
+      content: '⏳ ';
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div id="root">
+    <div class="loading">Loading Map Editor...</div>
+  </div>
+
+  <!-- React and ReactDOM from CDN -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  
+  <!-- Babel for JSX transformation -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- Map Editor Components (inline for demo) -->
+  <script type="text/babel">
+    const { useState, useRef, useEffect, useCallback } = React;
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // SIMPLE DEMO VERSION
+    // For production, use the separate .tsx files
+    // ═══════════════════════════════════════════════════════════════════════
+
+    function MapEditorDemo() {
+      const [waypoints, setWaypoints] = useState([]);
+      const [mapName, setMapName] = useState('Demo Map');
+      const canvasRef = useRef(null);
+
+      const render = useCallback(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#2d2d2d';
+        ctx.fillRect(0, 0, 800, 600);
+
+        // Draw grid
+        ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+        ctx.lineWidth = 1;
+        for (let x = 0; x <= 800; x += 20) {
+          ctx.beginPath();
+          ctx.moveTo(x, 0);
+          ctx.lineTo(x, 600);
+          ctx.stroke();
+        }
+        for (let y = 0; y <= 600; y += 20) {
+          ctx.beginPath();
+          ctx.moveTo(0, y);
+          ctx.lineTo(800, y);
+          ctx.stroke();
+        }
+
+        // Draw path
+        if (waypoints.length >= 2) {
+          ctx.strokeStyle = '#8b7355';
+          ctx.lineWidth = 40;
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
+          ctx.beginPath();
+          ctx.moveTo(waypoints[0].x, waypoints[0].y);
+          for (let i = 1; i < waypoints.length; i++) {
+            ctx.lineTo(waypoints[i].x, waypoints[i].y);
+          }
+          ctx.stroke();
+
+          ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+          ctx.lineWidth = 2;
+          ctx.setLineDash([5, 5]);
+          ctx.beginPath();
+          ctx.moveTo(waypoints[0].x, waypoints[0].y);
+          for (let i = 1; i < waypoints.length; i++) {
+            ctx.lineTo(waypoints[i].x, waypoints[i].y);
+          }
+          ctx.stroke();
+          ctx.setLineDash([]);
+        }
+
+        // Draw waypoints
+        waypoints.forEach((wp, i) => {
+          ctx.beginPath();
+          ctx.arc(wp.x, wp.y, 8, 0, Math.PI * 2);
+          if (i === 0) {
+            ctx.fillStyle = '#44ff44';
+            ctx.strokeStyle = '#22cc22';
+          } else if (i === waypoints.length - 1) {
+            ctx.fillStyle = '#ff4444';
+            ctx.strokeStyle = '#cc2222';
+          } else {
+            ctx.fillStyle = '#ffffff';
+            ctx.strokeStyle = '#888888';
+          }
+          ctx.fill();
+          ctx.lineWidth = 2;
+          ctx.stroke();
+
+          ctx.fillStyle = '#000000';
+          ctx.font = 'bold 10px Arial';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(String(i + 1), wp.x, wp.y);
+        });
+      }, [waypoints]);
+
+      useEffect(() => {
+        render();
+      }, [render]);
+
+      const handleClick = (e) => {
+        const canvas = canvasRef.current;
+        const rect = canvas.getBoundingClientRect();
+        const x = Math.round((e.clientX - rect.left) / 20) * 20;
+        const y = Math.round((e.clientY - rect.top) / 20) * 20;
+        setWaypoints([...waypoints, { x, y }]);
+      };
+
+      const handleExport = () => {
+        const mapData = {
+          name: mapName,
+          description: 'Created with TDG Map Editor',
+          version: '1.0',
+          author: 'Demo',
+          canvas: {
+            width: 800,
+            height: 600,
+            backgroundColor: '#2d2d2d',
+          },
+          path: {
+            waypoints: waypoints,
+            width: 40,
+            color: '#8b7355',
+          },
+          settings: {
+            startingMoney: 100,
+            startingLives: 20,
+          },
+        };
+
+        const json = JSON.stringify(mapData, null, 2);
+        const blob = new Blob([json], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${mapName.toLowerCase().replace(/\s+/g, '-')}.json`;
+        link.click();
+        URL.revokeObjectURL(url);
+      };
+
+      const handleClear = () => {
+        if (window.confirm('Clear all waypoints?')) {
+          setWaypoints([]);
+        }
+      };
+
+      return (
+        <div style={{
+          fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
+          background: '#0a0e14',
+          minHeight: '100vh',
+          padding: '20px',
+        }}>
+          <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+            <div style={{
+              marginBottom: '24px',
+              borderBottom: '1px solid rgba(255,255,255,0.08)',
+              paddingBottom: '16px',
+            }}>
+              <h1 style={{
+                margin: 0,
+                fontSize: '20px',
+                fontWeight: 700,
+                color: '#e8b059',
+                letterSpacing: '0.05em',
+              }}>
+                🗺️ TDG MAP EDITOR - DEMO
+              </h1>
+              <p style={{
+                margin: '6px 0 0',
+                fontSize: '12px',
+                color: '#5a6a7a',
+                letterSpacing: '0.08em',
+              }}>
+                Click to add waypoints • This is a simplified demo • Use .tsx files for full features
+              </p>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: '20px' }}>
+              <div>
+                <canvas
+                  ref={canvasRef}
+                  width={800}
+                  height={600}
+                  onClick={handleClick}
+                  style={{
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    borderRadius: '4px',
+                    cursor: 'crosshair',
+                    display: 'block',
+                  }}
+                />
+
+                <div style={{
+                  marginTop: '12px',
+                  padding: '12px',
+                  background: 'rgba(74,158,255,0.05)',
+                  border: '1px solid rgba(74,158,255,0.15)',
+                  borderRadius: '4px',
+                  fontSize: '11px',
+                  color: '#7a9aaa',
+                }}>
+                  <strong style={{ color: '#4a9eff' }}>💡 Demo Instructions:</strong>
+                  <ul style={{ marginLeft: '20px', marginTop: '8px', lineHeight: 1.6 }}>
+                    <li>Click anywhere on canvas to add waypoints</li>
+                    <li>Waypoints snap to 20px grid automatically</li>
+                    <li>Green = start, Red = end, White = middle</li>
+                    <li>Export creates downloadable JSON file</li>
+                  </ul>
+                  <div style={{ marginTop: '12px', fontSize: '10px', fontStyle: 'italic', color: '#5a7a8a' }}>
+                    For full features (drag, delete, load, settings), use the complete .tsx components.
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <div style={{
+                  background: 'rgba(255,255,255,0.02)',
+                  border: '1px solid rgba(255,255,255,0.06)',
+                  borderRadius: '6px',
+                  padding: '16px',
+                }}>
+                  <h3 style={{
+                    margin: '0 0 12px',
+                    fontSize: '12px',
+                    color: '#e8b059',
+                    letterSpacing: '0.1em',
+                  }}>
+                    ⚙️ MAP INFO
+                  </h3>
+
+                  <div style={{ marginBottom: '16px' }}>
+                    <label style={{
+                      display: 'block',
+                      fontSize: '10px',
+                      color: '#7a8a9a',
+                      marginBottom: '4px',
+                      textTransform: 'uppercase',
+                    }}>
+                      Map Name
+                    </label>
+                    <input
+                      type="text"
+                      value={mapName}
+                      onChange={(e) => setMapName(e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '8px',
+                        background: 'rgba(255,255,255,0.05)',
+                        border: '1px solid rgba(255,255,255,0.1)',
+                        borderRadius: '4px',
+                        color: '#c8d0d8',
+                        fontSize: '11px',
+                        fontFamily: 'inherit',
+                      }}
+                    />
+                  </div>
+
+                  <div style={{
+                    padding: '12px',
+                    background: 'rgba(74,158,255,0.05)',
+                    border: '1px solid rgba(74,158,255,0.15)',
+                    borderRadius: '4px',
+                    marginBottom: '16px',
+                  }}>
+                    <div style={{ fontSize: '10px', color: '#7a9aaa' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                        <span>Waypoints:</span>
+                        <span style={{
+                          color: waypoints.length >= 2 ? '#66ff66' : '#ff6666',
+                          fontWeight: 600,
+                        }}>
+                          {waypoints.length} {waypoints.length >= 2 ? '✓' : '✗'}
+                        </span>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <span>Status:</span>
+                        <span style={{ color: waypoints.length >= 2 ? '#66ff66' : '#ff8888' }}>
+                          {waypoints.length >= 2 ? 'Ready to export' : 'Need 2+ waypoints'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <button
+                      onClick={handleExport}
+                      disabled={waypoints.length < 2}
+                      style={{
+                        padding: '10px',
+                        background: waypoints.length < 2 ? '#2a2a2a' : '#1a1a4a',
+                        border: waypoints.length < 2 ? '1px solid #4a4a4a' : '1px solid #4444aa',
+                        color: waypoints.length < 2 ? '#6a6a6a' : '#6666ff',
+                        borderRadius: '4px',
+                        cursor: waypoints.length < 2 ? 'not-allowed' : 'pointer',
+                        fontSize: '11px',
+                        fontFamily: 'inherit',
+                        fontWeight: 600,
+                        letterSpacing: '0.08em',
+                      }}
+                    >
+                      📥 EXPORT JSON
+                    </button>
+
+                    <button
+                      onClick={handleClear}
+                      style={{
+                        padding: '10px',
+                        background: '#4a1a1a',
+                        border: '1px solid #aa4444',
+                        color: '#ff6666',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        fontSize: '11px',
+                        fontFamily: 'inherit',
+                        fontWeight: 600,
+                        letterSpacing: '0.08em',
+                      }}
+                    >
+                      🗑️ CLEAR ALL
+                    </button>
+                  </div>
+                </div>
+
+                <div style={{
+                  marginTop: '16px',
+                  padding: '12px',
+                  background: 'rgba(255,255,255,0.03)',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  borderRadius: '4px',
+                  fontSize: '10px',
+                  color: '#5a6a7a',
+                  lineHeight: 1.6,
+                }}>
+                  <strong style={{ color: '#e8b059' }}>📦 Full Version:</strong>
+                  <div style={{ marginTop: '8px' }}>
+                    See <code style={{ color: '#4a9eff' }}>MAP_EDITOR_README.md</code> for complete .tsx components with:
+                  </div>
+                  <ul style={{ marginLeft: '16px', marginTop: '8px' }}>
+                    <li>Drag to move waypoints</li>
+                    <li>Delete individual waypoints</li>
+                    <li>Load from file/clipboard</li>
+                    <li>Full settings customization</li>
+                    <li>Validation & error checking</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Render the app
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<MapEditorDemo />);
+  </script>
+</body>
+</html>
