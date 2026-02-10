@@ -1,10 +1,4 @@
-// src/entities/towerAnimator.js
-import { towerFrames } from '../assets/towerFrames.js';
-
-/**
- * TowerAnimator is responsible for running the animation state machine for a
- * tower and drawing the correct sprite from the shared sprite sheet.
- */
+import { towerFrames } from '../../assets/towerFrames.js';
 
 export const TowerAnimState = {
   IDLE: 'idle',
@@ -17,111 +11,90 @@ export class TowerAnimator {
     this.type = type;
     this.tier = tier;
     this.state = TowerAnimState.IDLE;
+    this.frameIndex = 0;
     this.time = 0;
-    this.fireDone = false;
-    this.idleSpeed = 4;   // frames per second – can be overridden per tower
-    this.fireSpeed = 8;
-    this.particles = [];
-
-    // Load the shared sprite sheet
+    this.frameDuration = 150; // ms per frame
+    this.fireDuration = 500; // ms total of fire animation
+    this.fireTimer = 0;
     this.spriteSheet = new Image();
-    this.spriteSheet.src = '../assets/tower-sprites.png';
-    this.spriteSheet.onload = () => {
-      this.sheetColumns = this.spriteSheet.width / 32;
-    };
+    this.spriteSheet.src = '/assets/tower-sprites.png'; // adjust path if needed
   }
 
   setState(state) {
-    this.state = state;
-    this.time = 0;
-    if (state === TowerAnimState.FIRE) this.fireDone = false;
+    if (this.state !== state) {
+      this.state = state;
+      this.frameIndex = 0;
+      this.time = 0;
+      if (state === TowerAnimState.FIRE) {
+        this.fireTimer = 0;
+      }
+    }
   }
 
-  update(deltaTime) {
-    this.time += deltaTime;
-    // Simple state machine: fire stops after a short duration
-    if (this.state === TowerAnimState.FIRE && this.time > 1 / this.fireSpeed) {
-      this.fireDone = true;
-      this.setState(TowerAnimState.IDLE);
+  setTier(tier) {
+    if (this.tier !== tier) {
+      this.tier = tier;
     }
-    this.particles = this.particles.filter(p => p.alive);
-    this.particles.forEach(p => p.update(deltaTime));
   }
 
   triggerFire() {
     this.setState(TowerAnimState.FIRE);
   }
 
-  setTier(tier) {
-    this.tier = tier;
-    // In a full implementation you would load new keyframe data here
+  update(deltaTime) {
+    // deltaTime in ms
+    this.time += deltaTime;
+
+    if (this.state === TowerAnimState.FIRE) {
+      this.fireTimer += deltaTime;
+      if (this.fireTimer >= this.fireDuration) {
+        this.setState(TowerAnimState.IDLE);
+      }
+    }
+
+    if (this.time >= this.frameDuration) {
+      this.time -= this.frameDuration;
+      this.frameIndex++;
+      const frames = this.getCurrentFrames();
+      if (this.frameIndex >= frames.length) {
+        this.frameIndex = 0;
+        if (this.state === TowerAnimState.FIRE) {
+          this.setState(TowerAnimState.IDLE);
+        }
+      }
+    }
   }
 
-  reset(type, tier = 1) {
-    this.type = type;
-    this.tier = tier;
-    this.state = TowerAnimState.IDLE;
-    this.time = 0;
-    this.particles = [];
+  getCurrentFrames() {
+    const mapping = towerFrames[this.type];
+    const frames = mapping[this.state] || mapping.idle;
+    return frames;
   }
 
-  /**
-   * Determines which frame from the sprite sheet should be drawn.
-   */
-  getCurrentFrame() {
-    const frames = towerFrames[this.type] || towerFrames.basic;
-    const frameArray = frames[this.state] || frames.idle;
-    const index = frameArray[Math.floor(this.time * (this[state === TowerAnimState.FIRE ? this.fireSpeed : this.idleSpeed]) % frameArray.length];
-    const cols = this.sheetColumns || 16; // default assumption if not yet loaded
-    const sx = (index % cols) * 32;
-    const sy = Math.floor(index / cols) * 32;
-    return { sx, sy, sw: 32, sh: 32 };
+  getFrameIndex() {
+    const frames = this.getCurrentFrames();
+    return frames[this.frameIndex % frames.length];
   }
 
-  /**
-   * Render the current frame onto the given context.
-   */
   render(ctx, cx, cy, scale = 1) {
-    if (!this.spriteSheet.complete) return; // not yet loaded
-    const { sx, sy, sw, sh } = this.getCurrentFrame();
+    if (!this.spriteSheet.complete) return;
+    const frameIdx = this.getFrameIndex();
+    const columns = 16; // assume 16 columns in sprite sheet
+    const frameSize = 32; // 32×32 px per frame
+    const sx = (frameIdx % columns) * frameSize;
+    const sy = Math.floor(frameIdx / columns) * frameSize;
+    const dw = frameSize * scale;
+    const dh = frameSize * scale;
     ctx.drawImage(
       this.spriteSheet,
       sx,
       sy,
-      sw,
-      sh,
-      cx - (sw / 2),
-      cy - sh,
-      sw * scale,
-      sh * scale
+      frameSize,
+      frameSize,
+      cx - dw / 2,
+      cy - dh,
+      dw,
+      dh
     );
-    // Draw any active particles
-    this.particles.forEach(p => p.render(ctx));
-  }
-}
-
-// Simple particle helper used by the animator
-export class Particle {
-  constructor(x, y, config = {}) {
-    this.x = x;
-    this.y = y;
-    this.life = config.life || 0.5;
-    this.speedX = config.speedX || 0;
-    this.speedY = config.speedY || 0;
-    this.alive = true;
-  }
-
-  update(dt) {
-    this.x += this.speedX * dt;
-    this.y += this.speedY * dt;
-    this.life -= dt;
-    if (this.life <= 0) this.alive = false;
-  }
-
-  render(ctx) {
-    ctx.fillStyle = 'rgba(255,165,0,0.7)';
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, 3, 0, Math.PI * 2);
-    ctx.fill();
   }
 }

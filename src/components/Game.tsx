@@ -1,40 +1,40 @@
-// src/components/Game.tsx
 import React, { useState, useEffect } from 'react';
 import { MapEditor } from './MapEditor';
 import { GameOverOverlay } from './GameOverOverlay';
-import './Game.css';
 
 export const Game: React.FC = () => {
   const [score, setScore] = useState(0);
   const [isGameOver, setGameOver] = useState(false);
 
-  // ESC key handling for game over
+  /* Handle Esc key to trigger game over */
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
+    const handleEsc = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && !isGameOver) {
         setGameOver(true);
       }
     };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    window.addEventListener('keydown', handleEsc);
+    return () => window.removeEventListener('keydown', handleEsc);
   }, [isGameOver]);
 
+  /* Restart logic – reset score, clear map, etc. */
   const handleRestart = () => {
     setScore(0);
     setGameOver(false);
-    // Optionally reset map/game state here
+    // Add any additional reset logic you have (e.g., clear enemy list, reset map state)
   };
 
+  /* Exit logic – close the window or navigate */
   const handleExit = () => {
-    console.log('Exit requested – replace with app close logic if needed');
-    // For Electron / Desktop: window.close();
+    console.log('Exit requested – replace with actual navigation logic');
+    // Example: window.location.href = '/'; // redirect to home
   };
 
   return (
-    <div className="game-container">
+    <div className="game-wrapper">
       {!isGameOver ? (
         <>
-          <h1 className="game-title">Tower Defense</h1>
+          <h1 className="game-title">Tower Defense Game</h1>
           <MapEditor />
           <div className="scoreboard">Score: {score}</div>
         </>

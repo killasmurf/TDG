@@ -34,13 +34,7 @@
     console.error('[PROMISE]', e.reason);
   });
 </script>
+
 <script type="module" src="./src/main.js"></script>
-<script type="module">
-  // If the module loaded, this runs — draw a marker so we know
-  import('./src/main.js').catch(function(err) {
-    var el = document.getElementById('error-display');
-    if (el) { el.style.display = 'block'; el.textContent = 'MODULE LOAD FAILED: ' + (err.stack || err.message || err); }
-  });
-</script>
 </body>
 </html>
