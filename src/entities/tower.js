@@ -1,15 +1,24 @@
-import { TowerAnimator, TowerAnimState } from './towerAnimator.js';
+import { TowerAnimator } from './towerAnimator.js';
+import Config from '../config.js';
 
-export class Tower {
+export default class Tower {
   constructor(x, y, type = 'basic', tier = 1) {
     this.x = x;
     this.y = y;
     this.type = type;
     this.tier = tier;
-    this.range = 150;
-    this.damage = 10;
-    this.fireRate = 1000; // milliseconds
+    this.active = true;
+
+    // Pull stats from config
+    const cfg = Config.tower[type] || {};
+    this.width = cfg.width || 40;
+    this.height = cfg.height || 40;
+    this.range = cfg.range || 150;
+    this.damage = cfg.damage || 10;
+    this.fireRate = cfg.fireRate || 1000; // milliseconds
+    this.color = cfg.color || 'blue';
     this.lastFire = 0;
+    this.angle = 0;
     this.animator = new TowerAnimator(type, tier);
   }
 
@@ -34,19 +43,32 @@ export class Tower {
     }
   }
 
-  render(ctx, scale = 1) {
-    // Position for rendering – centered on this.x, this.y
-    const cx = this.x;
-    const cy = this.y;
-    // Draw the tower using its animator
-    this.animator.render(ctx, cx, cy, scale);
-    // Optional: Draw range circle for debugging
-    if (process.env.NODE_ENV === 'development') {
-      ctx.strokeStyle = 'rgba(255,255,0,0.3)';
-      ctx.beginPath();
-      ctx.arc(cx, cy, this.range, 0, Math.PI * 2);
-      ctx.stroke();
-    }
+  render(renderer, scale = 1) {
+    // Draw tower body centered on (x, y)
+    const drawW = this.width * scale;
+    const drawH = this.height * scale;
+    renderer.drawRect(
+      this.x - drawW / 2,
+      this.y - drawH / 2,
+      drawW,
+      drawH,
+      this.color
+    );
+
+    // Draw barrel indicating aim direction
+    const barrelLen = drawW * 0.6;
+    const bx = this.x + Math.cos(this.angle) * barrelLen;
+    const by = this.y + Math.sin(this.angle) * barrelLen;
+    const ctx = renderer.ctx;
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 3 * scale;
+    ctx.beginPath();
+    ctx.moveTo(this.x, this.y);
+    ctx.lineTo(bx, by);
+    ctx.stroke();
+
+    // Let animator draw any extra visuals (e.g. fire flash)
+    this.animator.render(renderer, this.x, this.y, scale);
   }
 
   findNearestEnemy(enemies) {
