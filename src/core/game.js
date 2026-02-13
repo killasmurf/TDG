@@ -591,24 +591,8 @@ class Game extends GameLoop {
     }
 
     updateTowerTargeting() {
-        const towers = this.entityManager.getEntitiesByType('tower');
-        const enemies = this.entityManager.getEntitiesByType('enemy');
-        for (const tower of towers) {
-            if (!tower.target || !tower.target.active) {
-                let closestEnemy = null;
-                let closestDistance = Infinity;
-                for (const enemy of enemies) {
-                    const dx = enemy.x - tower.x;
-                    const dy = enemy.y - tower.y;
-                    const distance = Math.hypot(dx, dy);
-                    if (distance <= tower.range && distance < closestDistance) {
-                        closestDistance = distance;
-                        closestEnemy = enemy;
-                    }
-                }
-                tower.setTarget(closestEnemy);
-            }
-        }
+        // Targeting is now handled inside tower.update() via entityManager.findClosestEnemy()
+        // This method is kept as a no-op for any external callers
     }
 
     placeTower(x, y) {
