@@ -121,6 +121,11 @@ export class ChurchTowerAnimator {
     ctx.restore();
   }
 
+  triggerFire() {
+    // Church tower "fire" is a healing pulse — briefly intensify the aura
+    this.healPulse = 1;
+  }
+
   setTier(tier) {
     this.tier = tier;
     this.parts = tier === 1 ? T1_PARTS : tier === 2 ? T2_PARTS : T3_PARTS;

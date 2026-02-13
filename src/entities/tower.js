@@ -22,92 +22,57 @@ export default class Tower {
     this.animator = new TowerAnimator(type, tier);
   }
 
-  update(deltaTime, currentTime, enemies) {
+  update(deltaTime, entityManager) {
     // Update animation
     this.animator.update(deltaTime);
 
-    // Targeting logic
-    const target = this.findNearestEnemy(enemies);
+    // Track elapsed time (deltaTime is in seconds, fireRate in ms)
+    this.lastFire += deltaTime * 1000;
+
+    // Use tower center for targeting
+    const cx = this.x + this.width / 2;
+    const cy = this.y + this.height / 2;
+
+    // Find nearest enemy via entityManager
+    const target = entityManager.findClosestEnemy(cx, cy, this.range);
     if (!target) return;
 
-    // Rotate tower towards target (simplified)
-    this.angle = Math.atan2(target.y - this.y, target.x - this.x);
+    // Rotate tower towards target
+    this.angle = Math.atan2(target.y - cy, target.x - cx);
 
-    // Firing logic
-    if (
-      currentTime - this.lastFire >= this.fireRate &&
-      this.isInRange(target)
-    ) {
-      this.fire(target);
-      this.lastFire = currentTime;
+    // Firing logic — lastFire accumulates ms since last shot
+    if (this.lastFire >= this.fireRate) {
+      this.lastFire = 0;
+      this.animator.triggerFire();
+      entityManager.spawnProjectile(this, target);
     }
   }
 
   render(renderer, scale = 1) {
-    // Draw tower body centered on (x, y)
+    // this.x, this.y is the top-left corner (set by placeTower)
+    // Compute center for drawing and animator
+    const cx = this.x + this.width / 2;
+    const cy = this.y + this.height / 2;
     const drawW = this.width * scale;
     const drawH = this.height * scale;
-    renderer.drawRect(
-      this.x - drawW / 2,
-      this.y - drawH / 2,
-      drawW,
-      drawH,
-      this.color
-    );
 
-    // Draw barrel indicating aim direction
+    // Draw tower body from top-left
+    renderer.drawRect(this.x, this.y, drawW, drawH, this.color);
+
+    // Draw barrel indicating aim direction from center
     const barrelLen = drawW * 0.6;
-    const bx = this.x + Math.cos(this.angle) * barrelLen;
-    const by = this.y + Math.sin(this.angle) * barrelLen;
+    const bx = cx + Math.cos(this.angle) * barrelLen;
+    const by = cy + Math.sin(this.angle) * barrelLen;
     const ctx = renderer.ctx;
     ctx.strokeStyle = '#fff';
     ctx.lineWidth = 3 * scale;
     ctx.beginPath();
-    ctx.moveTo(this.x, this.y);
+    ctx.moveTo(cx, cy);
     ctx.lineTo(bx, by);
     ctx.stroke();
 
-    // Let animator draw any extra visuals (e.g. fire flash)
-    this.animator.render(renderer, this.x, this.y, scale);
-  }
-
-  findNearestEnemy(enemies) {
-    let nearest = null;
-    let minDist = Infinity;
-    for (const e of enemies) {
-      const d = Math.hypot(e.x - this.x, e.y - this.y);
-      if (d < minDist) {
-        minDist = d;
-        nearest = e;
-      }
-    }
-    return nearest;
-  }
-
-  isInRange(target) {
-    return Math.hypot(target.x - this.x, target.y - this.y) <= this.range;
-  }
-
-  fire(target) {
-    // Trigger animation
-    this.animator.triggerFire();
-
-    // Create a projectile – simple example
-    const dx = target.x - this.x;
-    const dy = target.y - this.y;
-    const norm = Math.hypot(dx, dy);
-    const speed = 300;
-    const vx = (dx / norm) * speed;
-    const vy = (dy / norm) * speed;
-    // Assume a global entityManager exists
-    entityManager.spawnProjectile({
-      x: this.x,
-      y: this.y,
-      vx,
-      vy,
-      damage: this.damage,
-      owner: this,
-    });
+    // Let animator draw tower model at the center
+    this.animator.render(renderer, cx, cy, scale);
   }
 
   upgrade() {

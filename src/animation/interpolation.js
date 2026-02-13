@@ -26,7 +26,14 @@ export function lerpFrame(a, b, t) {
     if (typeof a[key] === 'object' && a[key] !== null) {
       result[key] = {};
       for (const prop of Object.keys(a[key])) {
-        result[key][prop] = lerp(a[key][prop] || 0, b[key]?.[prop] || 0, t);
+        const valA = a[key][prop];
+        const valB = b[key]?.[prop];
+        // Only lerp numeric values; snap booleans and other types
+        if (typeof valA === 'number') {
+          result[key][prop] = lerp(valA, typeof valB === 'number' ? valB : valA, t);
+        } else {
+          result[key][prop] = t < 0.5 ? valA : (valB !== undefined ? valB : valA);
+        }
       }
     } else if (typeof a[key] === 'number') {
       result[key] = lerp(a[key], b[key] ?? a[key], t);
