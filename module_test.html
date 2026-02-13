@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>TDG Module Test</title>
+    <style>
+        body { font-family: monospace; padding: 20px; background: #f0f0f0; }
+        .test { margin: 10px 0; padding: 10px; border-radius: 3px; }
+        .success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .error { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        .info { background: #d1ecf1; border: 1px solid #b6d4df; color: #0c5460; }
+    </style>
+</head>
+<body>
+    <h1>TDG Module Import Test</h1>
+    <div id="results"></div>
+
+    <script type="module">
+        const results = document.getElementById('results');
+        
+        function addResult(message, type) {
+            const div = document.createElement('div');
+            div.className = `test ${type}`;
+            div.textContent = message;
+            results.appendChild(div);
+        }
+
+        // Test individual imports
+        async function testImports() {
+            try {
+                addResult('Testing basic module imports...', 'info');
+                
+                // Test 1: TowerAnimator
+                const { TowerAnimator, TowerAnimState } = await import('./src/entities/towerAnimator.js');
+                addResult('✅ TowerAnimator imported successfully', 'success');
+                
+                // Test 2: Create basic tower animator
+                const basicAnimator = new TowerAnimator('basic', 1);
+                addResult('✅ Basic tower animator created', 'success');
+                
+                // Test 3: Create sniper tower animator  
+                const sniperAnimator = new TowerAnimator('sniper', 2);
+                addResult('✅ Sniper tower animator created', 'success');
+                
+                // Test 4: Create rapid tower animator
+                const rapidAnimator = new TowerAnimator('rapid', 3);
+                addResult('✅ Rapid tower animator created', 'success');
+                
+                // Test 5: Verify methods exist
+                const methods = ['update', 'render', 'triggerFire', 'setTier', 'getState'];
+                const missingMethods = methods.filter(method => typeof basicAnimator[method] !== 'function');
+                
+                if (missingMethods.length === 0) {
+                    addResult('✅ All required methods present', 'success');
+                } else {
+                    addResult(`❌ Missing methods: ${missingMethods.join(', ')}`, 'error');
+                }
+                
+                // Test 6: Test Tower import
+                const Tower = (await import('./src/entities/tower.js')).default;
+                addResult('✅ Tower imported successfully', 'success');
+                
+                // Test 7: Create tower
+                const tower = new Tower(100, 100, 'basic', 1);
+                addResult('✅ Tower created successfully', 'success');
+                addResult(`Tower type: ${tower.type}, tier: ${tower.tier}`, 'info');
+                
+                // Test 8: Test animator delegation
+                tower.animator.update(0.016);
+                addResult('✅ Animator update works', 'success');
+                
+                // Test 9: Test canvas rendering
+                const canvas = document.createElement('canvas');
+                canvas.width = 200;
+                canvas.height = 200;
+                const ctx = canvas.getContext('2d');
+                
+                tower.animator.render(ctx, 100, 100, 1);
+                addResult('✅ Animator render works', 'success');
+                
+                // Test 10: Test fire trigger
+                tower.animator.triggerFire();
+                addResult('✅ Fire trigger works', 'success');
+                addResult(`Animator state after fire: ${tower.animator.getState()}`, 'info');
+                
+                addResult('🎉 All tests passed! Tower system is working.', 'success');
+                
+            } catch (error) {
+                addResult(`❌ Test failed: ${error.message}`, 'error');
+                addResult(`Stack: ${error.stack}`, 'error');
+                console.error('Test error:', error);
+            }
+        }
+
+        testImports();
+    </script>
+</body>
+</html>

@@ -1,7 +1,8 @@
 // src/assets/towerFrames.js
-// Placeholder data for animation keyframes
-// For each tower type and state you should provide the starting frame index and number of frames
-// (e.g., idle: 0–3, fire: 4–9, upgrade: 10–13). The actual numbers match the sprite sheet.
+// DEPRECATED: Replaced by skeletal animation system
+// This file exists only for backwards compatibility to prevent import errors
+
+console.warn('[DEPRECATED] towerFrames.js is obsolete - skeletal animation system is now active');
 
 export const towerFrames = {
   basic: {
@@ -10,12 +11,13 @@ export const towerFrames = {
     upgrade: { start: 12, count: 4 }
   },
   sniper: {
-    idle: { start: 0, count: 4 },
-    fire: { start: 4, count: 8 },
-    upgrade: { start: 12, count: 4 }
+    idle: { start: 16, count: 4 },
+    fire: { start: 20, count: 8 },
+    upgrade: { start: 28, count: 4 }
   },
-  church: {
-    idle: { start: 0, count: 4 },
-    fire: { start: 4, count: 8 }
+  rapid: {
+    idle: { start: 32, count: 4 },
+    fire: { start: 36, count: 8 },
+    upgrade: { start: 44, count: 4 }
   }
 };

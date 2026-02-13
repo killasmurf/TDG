@@ -84,11 +84,11 @@ export default class WaveManager {
             console.log('Wave completed.');
             // Clean up listeners
             if (this.enemyKilledListener) {
-                this.entityManager.off('ENEMY_KILLED', this.enemyKilledListener);
+                this.entityManager.off(GameEvents.ENEMY_KILLED, this.enemyKilledListener);
                 this.enemyKilledListener = null;
             }
             if (this.enemyReachedEndListener) {
-                this.entityManager.off('ENEMY_REACHED_END', this.enemyReachedEndListener);
+                this.entityManager.off(GameEvents.ENEMY_REACHED_END, this.enemyReachedEndListener);
                 this.enemyReachedEndListener = null;
             }
             this.eventEmitter.emit('wave:completed');

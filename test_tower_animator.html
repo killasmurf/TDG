@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tower Animator Test - Phase 2</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            background: #222; 
+            color: white; 
+            margin: 20px;
+        }
+        canvas { 
+            border: 2px solid #444; 
+            background: #333;
+            margin: 10px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #444;
+            border-radius: 8px;
+        }
+        .status {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 4px;
+        }
+        .success { background: #2d5a2d; }
+        .error { background: #5a2d2d; }
+        .info { background: #2d4a5a; }
+        button {
+            background: #444;
+            color: white;
+            border: 1px solid #666;
+            padding: 8px 16px;
+            margin: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover { background: #555; }
+    </style>
+</head>
+<body>
+    <h1>🏰 Tower Animator Factory/Router Test</h1>
+    <p>Testing Phase 2: TowerAnimator as factory/router delegating to specific implementations</p>
+    
+    <div class="test-section">
+        <h2>Animation Tests</h2>
+        <button onclick="testBasicTower()">Test Church Tower (Basic)</button>
+        <button onclick="testSniperTower()">Test Sniper Tower</button>
+        <button onclick="testRapidTower()">Test Rapid Tower</button>
+        <button onclick="testUpgrades()">Test Tier Upgrades</button>
+        <button onclick="testFiring()">Test Fire Animation</button>
+    </div>
+
+    <div id="results">
+        <div class="status info">Click buttons above to run tests...</div>
+    </div>
+
+    <div class="test-section">
+        <h2>Visual Preview</h2>
+        <canvas id="testCanvas" width="800" height="400"></canvas>
+    </div>
+
+    <script type="module">
+        // Test script for Phase 2 tower animator
+        let canvas, ctx;
+        let currentAnimator = null;
+        let animationId = null;
+        
+        // Initialize canvas
+        window.addEventListener('DOMContentLoaded', () => {
+            canvas = document.getElementById('testCanvas');
+            ctx = canvas.getContext('2d');
+            addResult('Canvas initialized', 'info');
+        });
+
+        function addResult(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `status ${type}`;
+            div.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            results.appendChild(div);
+            // Auto-scroll to latest
+            results.scrollTop = results.scrollHeight;
+        }
+
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // Draw grid for reference
+            ctx.strokeStyle = 'rgba(100, 100, 100, 0.3)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= canvas.width; i += 50) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, canvas.height);
+                ctx.stroke();
+            }
+            for (let i = 0; i <= canvas.height; i += 50) {
+                ctx.beginPath();
+                ctx.moveTo(0, i);
+                ctx.lineTo(canvas.width, i);
+                ctx.stroke();
+            }
+        }
+
+        function startAnimation() {
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
+            
+            let lastTime = 0;
+            function animate(currentTime) {
+                const deltaTime = (currentTime - lastTime) / 1000;
+                lastTime = currentTime;
+                
+                clearCanvas();
+                
+                if (currentAnimator) {
+                    // Update animator
+                    currentAnimator.update(deltaTime);
+                    
+                    // Render tower at center of canvas
+                    const centerX = canvas.width / 2;
+                    const centerY = canvas.height / 2;
+                    currentAnimator.render(ctx, centerX, centerY, 1.5);
+                    
+                    // Show state info
+                    ctx.fillStyle = 'white';
+                    ctx.font = '14px monospace';
+                    const state = currentAnimator.getState();
+                    ctx.fillText(`State: ${state}`, 10, 30);
+                    ctx.fillText(`Type: ${currentAnimator.type}`, 10, 50);
+                    ctx.fillText(`Tier: ${currentAnimator.tier}`, 10, 70);
+                }
+                
+                animationId = requestAnimationFrame(animate);
+            }
+            animationId = requestAnimationFrame(animate);
+        }
+
+        // Test functions (will be defined by dynamic imports)
+        async function loadAnimator() {
+            try {
+                // Import from the actual src path
+                const { TowerAnimator } = await import('./src/entities/towerAnimator.js');
+                return TowerAnimator;
+            } catch (error) {
+                addResult(`Failed to load TowerAnimator: ${error.message}`, 'error');
+                throw error;
+            }
+        }
+
+        window.testBasicTower = async function() {
+            try {
+                addResult('Testing Church Tower (basic type)...', 'info');
+                const TowerAnimator = await loadAnimator();
+                
+                currentAnimator = new TowerAnimator('basic', 1);
+                addResult('✓ Church Tower T1 created successfully', 'success');
+                
+                startAnimation();
+                addResult('✓ Animation started - check canvas', 'success');
+                
+            } catch (error) {
+                addResult(`✗ Church Tower test failed: ${error.message}`, 'error');
+                console.error(error);
+            }
+        };
+
+        window.testSniperTower = async function() {
+            try {
+                addResult('Testing Sniper Tower...', 'info');
+                const TowerAnimator = await loadAnimator();
+                
+                currentAnimator = new TowerAnimator('sniper', 2);
+                addResult('✓ Sniper Tower T2 created successfully', 'success');
+                
+                startAnimation();
+                addResult('✓ Animation started - check canvas', 'success');
+                
+            } catch (error) {
+                addResult(`✗ Sniper Tower test failed: ${error.message}`, 'error');
+                console.error(error);
+            }
+        };
+
+        window.testRapidTower = async function() {
+            try {
+                addResult('Testing Rapid Tower (sniper with speed modifier)...', 'info');
+                const TowerAnimator = await loadAnimator();
+                
+                currentAnimator = new TowerAnimator('rapid', 1);
+                addResult('✓ Rapid Tower T1 created successfully', 'success');
+                
+                startAnimation();
+                addResult('✓ Animation started - should fire 3x faster than sniper', 'success');
+                
+            } catch (error) {
+                addResult(`✗ Rapid Tower test failed: ${error.message}`, 'error');
+                console.error(error);
+            }
+        };
+
+        window.testUpgrades = async function() {
+            try {
+                addResult('Testing Tier Upgrades...', 'info');
+                const TowerAnimator = await loadAnimator();
+                
+                currentAnimator = new TowerAnimator('basic', 1);
+                addResult('✓ Created T1 Church Tower', 'success');
+                
+                startAnimation();
+                
+                // Upgrade every 2 seconds
+                setTimeout(() => {
+                    currentAnimator.setTier(2);
+                    addResult('✓ Upgraded to T2 Parish Church', 'success');
+                    
+                    setTimeout(() => {
+                        currentAnimator.setTier(3);
+                        addResult('✓ Upgraded to T3 Grand Cathedral', 'success');
+                    }, 2000);
+                }, 2000);
+                
+            } catch (error) {
+                addResult(`✗ Upgrade test failed: ${error.message}`, 'error');
+                console.error(error);
+            }
+        };
+
+        window.testFiring = async function() {
+            try {
+                addResult('Testing Fire Animation...', 'info');
+                const TowerAnimator = await loadAnimator();
+                
+                currentAnimator = new TowerAnimator('sniper', 3);
+                addResult('✓ Created T3 Sniper Tower', 'success');
+                
+                startAnimation();
+                
+                // Trigger fire every 1.5 seconds
+                const fireInterval = setInterval(() => {
+                    currentAnimator.triggerFire();
+                    addResult('🔥 Fire triggered!', 'info');
+                }, 1500);
+                
+                // Stop after 10 seconds
+                setTimeout(() => {
+                    clearInterval(fireInterval);
+                    addResult('✓ Fire test complete', 'success');
+                }, 10000);
+                
+            } catch (error) {
+                addResult(`✗ Fire test failed: ${error.message}`, 'error');
+                console.error(error);
+            }
+        };
+    </script>
+</body>
+</html>

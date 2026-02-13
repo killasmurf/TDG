@@ -1,6 +1,6 @@
 import { TowerAnimator, TowerAnimState } from './towerAnimator.js';
 
-export class Tower {
+export default class Tower {
   constructor(x, y, type = 'basic', tier = 1) {
     this.x = x;
     this.y = y;
