@@ -23,31 +23,37 @@ export class TowerAnimator {
   constructor(type, tier = 1) {
     this.type = type;
     this.tier = tier;
-    
+
     // Select the appropriate animator class
     const AnimClass = ANIMATOR_MAP[type] || ChurchTowerAnimator;
     this._impl = new AnimClass(tier);
-    
+
     // Apply type-specific modifiers
     this._applyTypeModifiers();
   }
 
   // Delegate all animation interface methods to the implementation
-  update(deltaTime) { 
-    this._impl.update(deltaTime); 
+  update(deltaTime) {
+    this._impl.update(deltaTime);
   }
 
-  render(ctx, cx, cy, scale = 1) { 
-    this._impl.render(ctx, cx, cy, scale); 
+  /**
+   * Render the tower animation.
+   * Accepts either a Renderer wrapper or a raw CanvasRenderingContext2D.
+   * Sub-animators expect a raw ctx, so we unwrap if needed.
+   */
+  render(ctxOrRenderer, cx, cy, scale = 1) {
+    const ctx = ctxOrRenderer.ctx ? ctxOrRenderer.ctx : ctxOrRenderer;
+    this._impl.render(ctx, cx, cy, scale);
   }
 
-  triggerFire() { 
-    this._impl.triggerFire(); 
+  triggerFire() {
+    this._impl.triggerFire();
   }
 
-  setTier(tier) { 
+  setTier(tier) {
     this.tier = tier;
-    this._impl.setTier(tier); 
+    this._impl.setTier(tier);
   }
 
   setState(state) {
@@ -56,7 +62,7 @@ export class TowerAnimator {
     }
   }
 
-  getState() { 
+  getState() {
     return this._impl.getState ? this._impl.getState() : 'idle';
   }
 
@@ -76,15 +82,15 @@ export class TowerAnimator {
           this._impl.setIdleSpeed(1.5);  // Slightly faster idle
         }
         break;
-      
+
       case 'sniper':
         // Standard sniper speeds (no modifications needed)
         break;
-        
+
       case 'basic':
         // Church tower - standard speeds for support role
         break;
-        
+
       default:
         console.warn(`Unknown tower type: ${this.type}, using basic defaults`);
         break;
