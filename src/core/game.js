@@ -326,7 +326,9 @@ class Game extends GameLoop {
 
         switch (event.key) {
             case 'Escape':
-                if (this.state === 'playing') {
+                if (this.state === 'gameOver' || this.state === 'victory') {
+                    this.exitToMenu();
+                } else if (this.state === 'playing') {
                     // If a tower is selected, deselect it first; otherwise open pause menu
                     if (this.selectedTower || this.selectedTowerType) {
                         this.selectedTower = null;
@@ -360,9 +362,16 @@ class Game extends GameLoop {
                     this.upgradeTower();
                 }
                 break;
+            case 'Enter':
+                if (this.state === 'gameOver' || this.state === 'victory') {
+                    this.exitToMenu();
+                }
+                break;
             case ' ':
                 console.log('[Game] Space pressed, waveInProgress:', this.waveInProgress, 'wavePaused:', this.wavePaused);
-                if (this.state === 'playing') {
+                if (this.state === 'gameOver' || this.state === 'victory') {
+                    this.exitToMenu();
+                } else if (this.state === 'playing') {
                     if (!this.waveInProgress) {
                         console.log('[Game] Starting next wave...');
                         this.startNextWave();
@@ -1006,10 +1015,12 @@ class Game extends GameLoop {
             ctx.drawRect(0, 0, Config.canvas.width, Config.canvas.height, 'rgba(0, 0, 0, 0.8)');
             ctx.drawText('GAME OVER', Config.canvas.width / 2 - 80, Config.canvas.height / 2 - 20, 32, 'red');
             ctx.drawText(`Final Score: ${this.score}`, Config.canvas.width / 2 - 60, Config.canvas.height / 2 + 30, 18, 'white');
+            ctx.drawText('Press SPACE or ENTER to return to Main Menu', Config.canvas.width / 2 - 165, Config.canvas.height / 2 + 70, 16, '#aaa');
         } else if (this.state === 'victory') {
             ctx.drawRect(0, 0, Config.canvas.width, Config.canvas.height, 'rgba(0, 0, 0, 0.8)');
             ctx.drawText('VICTORY!', Config.canvas.width / 2 - 60, Config.canvas.height / 2 - 20, 32, 'gold');
             ctx.drawText(`Final Score: ${this.score}`, Config.canvas.width / 2 - 60, Config.canvas.height / 2 + 30, 18, 'white');
+            ctx.drawText('Press SPACE or ENTER to return to Main Menu', Config.canvas.width / 2 - 165, Config.canvas.height / 2 + 70, 16, '#aaa');
         }
     }
 
