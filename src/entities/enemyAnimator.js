@@ -1,9 +1,11 @@
 /**
  * EnemyAnimator - Skeletal animation system for samurai enemies
  * Handles walk cycle and death sequence with per-body-part transforms
- * 
+ *
  * Integration: Import and attach to Enemy instances via enemy.animator
  */
+
+import MiniBossAnimator from '../animation/enemyAnimators/MiniBossAnimator.js';
 
 // ─── Body part layout (relative to center-bottom origin) ───
 const PARTS = {
@@ -97,11 +99,22 @@ const AnimState = {
 
 /**
  * EnemyAnimator class
- * Attach one per enemy instance to drive skeletal animation
+ * Attach one per enemy instance to drive skeletal animation.
+ * For the 'miniboss' type this is a thin wrapper that delegates
+ * all calls to MiniBossAnimator so each enemy type can have its
+ * own bespoke renderer without changing the enemy.js interface.
  */
 class EnemyAnimator {
   constructor(type = 'basic') {
     this.type = type;
+
+    // Delegate to a dedicated animator for the mini boss
+    if (type === 'miniboss') {
+      this._delegate = new MiniBossAnimator();
+      return;
+    }
+    this._delegate = null;
+
     this.state = AnimState.WALK;
     this.time = 0;
     this.walkSpeed = 8;        // frames per second
@@ -117,6 +130,7 @@ class EnemyAnimator {
    * @param {'walk'|'death'|'idle'} state
    */
   setState(state) {
+    if (this._delegate) { this._delegate.setState(state); return; }
     if (state === AnimState.DEATH && this.state !== AnimState.DEATH) {
       this.time = 0;
       this.deathDone = false;
@@ -130,6 +144,7 @@ class EnemyAnimator {
    * Trigger a flash effect (e.g. when taking damage while walking)
    */
   flash() {
+    if (this._delegate) { this._delegate.flash(); return; }
     this.flashTimer = 0.1; // 100ms flash
   }
 
@@ -138,6 +153,7 @@ class EnemyAnimator {
    * @param {number} deltaTime - seconds since last frame
    */
   update(deltaTime) {
+    if (this._delegate) { this._delegate.update(deltaTime); return; }
     if (this.flashTimer > 0) {
       this.flashTimer -= deltaTime;
     }
@@ -180,6 +196,7 @@ class EnemyAnimator {
    * @returns {Object} Interpolated keyframe with part transforms
    */
   getCurrentFrame() {
+    if (this._delegate) return this._delegate.getCurrentFrame();
     let frames, totalFrames, rawFrame, loop;
 
     switch (this.state) {
@@ -221,6 +238,7 @@ class EnemyAnimator {
    * @param {number} scale - Render scale (default 0.5 for ~30px tall to match Config.enemy sizes)
    */
   render(ctx, cx, cy, scale = 0.5) {
+    if (this._delegate) { this._delegate.render(ctx, cx, cy, scale); return; }
     const frame = this.getCurrentFrame();
     const opacity = frame.opacity ?? 1;
     const isFlash = (frame.flash || this.flashTimer > 0);
@@ -314,6 +332,7 @@ class EnemyAnimator {
    * @returns {boolean} True if death animation has completed
    */
   isDeathComplete() {
+    if (this._delegate) return this._delegate.isDeathComplete();
     return this.state === AnimState.DEATH && this.deathDone && this.particles.length === 0;
   }
 
@@ -323,6 +342,14 @@ class EnemyAnimator {
    */
   reset(type = 'basic') {
     this.type = type;
+    // If we're switching to/from miniboss, swap delegate
+    if (type === 'miniboss') {
+      if (!this._delegate) this._delegate = new MiniBossAnimator();
+      else this._delegate.reset();
+      return;
+    }
+    // Clear delegate when switching away from miniboss
+    this._delegate = null;
     this.state = AnimState.WALK;
     this.time = 0;
     this.deathDone = false;

@@ -79,6 +79,7 @@ const Config = {
     basic: { width: 30, height: 30, health: 100, speed: 80, damage: 10, reward: 10, color: 'red' },
     fast: { width: 20, height: 20, health: 50, speed: 120, damage: 5, reward: 15, color: 'orange' },
     tank: { width: 40, height: 40, health: 300, speed: 60, damage: 20, reward: 30, color: 'darkred' },
+    miniboss: { width: 55, height: 55, health: 800, speed: 50, damage: 40, reward: 75, color: '#8B0000' },
   },
   projectile: {
     width: 5,
@@ -129,6 +130,7 @@ Config.waves = [
       { type: 'tank', count: 4, interval: 2.0 },
       { type: 'basic', count: 10, interval: 0.6 },
       { type: 'fast', count: 6, interval: 0.8 },
+      { type: 'miniboss', count: 1, interval: 5.0 },
     ],
   },
 ];
