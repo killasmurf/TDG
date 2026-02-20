@@ -75,13 +75,28 @@ export default class Tower {
     this.animator.render(renderer, cx, cy, scale);
   }
 
-  upgrade() {
-    if (this.tier < 3) {
-      this.tier++;
-      this.damage += 5;
-      this.range += 30;
-      this.fireRate = Math.max(200, this.fireRate * 0.9);
-      this.animator.setTier(this.tier);
-    }
+  /**
+   * Get the next upgrade data from config, or null if max tier.
+   * @returns {{ dmg: number, range: number, cost: number } | null}
+   */
+  getNextUpgrade() {
+    const cfg = Config.tower[this.type];
+    if (!cfg || !cfg.upgrades) return null;
+    const upgrade = cfg.upgrades[this.tier - 1]; // tier 1 → upgrades[0], tier 2 → upgrades[1]
+    return upgrade || null;
+  }
+
+  /**
+   * Apply an upgrade using config data.
+   * @param {{ dmg: number, range: number, cost: number }} upgradeData
+   * @returns {boolean} true if upgrade was applied
+   */
+  upgrade(upgradeData) {
+    if (this.tier >= 3) return false;
+    this.tier++;
+    if (upgradeData.dmg !== undefined) this.damage = upgradeData.dmg;
+    if (upgradeData.range !== undefined) this.range = upgradeData.range;
+    this.animator.setTier(this.tier);
+    return true;
   }
 }

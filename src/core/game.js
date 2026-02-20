@@ -51,7 +51,9 @@ class Game extends GameLoop {
         this.wavePaused = false;
 
         // Selection state
-        this.selectedTowerType = null;
+        this.selectedTowerType = null;  // Tower type being placed ('basic', 'sniper', 'rapid')
+        this.selectedTower = null;      // Placed tower that is selected for info/upgrade
+        this.upgradeButtonRect = null;  // Bounding box of the upgrade button in the info panel
         this.hoveredCell = null;
         this.placementError = null;
         this.placementErrorTimer = 0;
@@ -120,11 +122,25 @@ class Game extends GameLoop {
 
         // Handle in-game clicks
         if (this.state === 'playing') {
-            console.log('[Game] Mouse position:', mousePos.x, mousePos.y);
+            // Priority 1: If in placement mode, place a new tower
             if (this.selectedTowerType) {
-                console.log('[Game] Placing tower:', this.selectedTowerType);
                 this.placeTower(mousePos.x, mousePos.y);
+                return;
             }
+
+            // Priority 2: Check if clicking the upgrade button in the info panel
+            if (this.selectedTower && this.upgradeButtonRect) {
+                const r = this.upgradeButtonRect;
+                if (mousePos.x >= r.x && mousePos.x <= r.x + r.w &&
+                    mousePos.y >= r.y && mousePos.y <= r.y + r.h) {
+                    this.upgradeTower();
+                    return;
+                }
+            }
+
+            // Priority 3: Click on a placed tower to select it
+            const clickedTower = this.findTowerAtPosition(mousePos.x, mousePos.y);
+            this.selectedTower = clickedTower; // null if clicked empty space
             return;
         }
 
@@ -311,25 +327,37 @@ class Game extends GameLoop {
         switch (event.key) {
             case 'Escape':
                 if (this.state === 'playing') {
-                    this.openPauseMenu();
+                    // If a tower is selected, deselect it first; otherwise open pause menu
+                    if (this.selectedTower || this.selectedTowerType) {
+                        this.selectedTower = null;
+                        this.selectedTowerType = null;
+                    } else {
+                        this.openPauseMenu();
+                    }
                 }
                 break;
             case '1':
                 if (this.state === 'playing') {
                     this.selectedTowerType = 'basic';
-                    console.log('[Game] Selected tower: basic');
+                    this.selectedTower = null; // Exit tower-select mode
                 }
                 break;
             case '2':
                 if (this.state === 'playing') {
                     this.selectedTowerType = 'sniper';
-                    console.log('[Game] Selected tower: sniper');
+                    this.selectedTower = null;
                 }
                 break;
             case '3':
                 if (this.state === 'playing') {
                     this.selectedTowerType = 'rapid';
-                    console.log('[Game] Selected tower: rapid');
+                    this.selectedTower = null;
+                }
+                break;
+            case 'u':
+            case 'U':
+                if (this.state === 'playing' && this.selectedTower) {
+                    this.upgradeTower();
                 }
                 break;
             case ' ':
@@ -595,6 +623,45 @@ class Game extends GameLoop {
         // This method is kept as a no-op for any external callers
     }
 
+    /**
+     * Find a placed tower at the given canvas position.
+     * @returns {Tower|null}
+     */
+    findTowerAtPosition(x, y) {
+        for (const tower of this.entityManager.towers) {
+            if (tower.active &&
+                x >= tower.x && x <= tower.x + tower.width &&
+                y >= tower.y && y <= tower.y + tower.height) {
+                return tower;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Attempt to upgrade the currently selected tower.
+     */
+    upgradeTower() {
+        if (!this.selectedTower) return;
+
+        const upgrade = this.selectedTower.getNextUpgrade();
+        if (!upgrade) {
+            this.placementError = 'Already max level!';
+            this.placementErrorTimer = 1500;
+            return;
+        }
+
+        if (this.money < upgrade.cost) {
+            this.placementError = `Need $${upgrade.cost} to upgrade!`;
+            this.placementErrorTimer = 1500;
+            return;
+        }
+
+        this.money -= upgrade.cost;
+        this.selectedTower.upgrade(upgrade);
+        this.audio.play('towerPlace'); // Reuse placement sound for upgrade
+    }
+
     placeTower(x, y) {
         console.log('[Game] placeTower called at', x, y);
         const towerConfig = Config.tower[this.selectedTowerType];
@@ -726,6 +793,7 @@ class Game extends GameLoop {
         this.renderPath();
         this.entityManager.render(this.renderer);
         this.renderTowerPlacementPreview();
+        this.renderSelectedTowerPanel();
         this.renderUI();
         this.renderStateOverlay();
         this.renderDebugInfo();
@@ -757,6 +825,84 @@ class Game extends GameLoop {
         // Show cost warning if can't afford
         if (!canAfford) {
             this.renderer.drawText(`Need $${towerConfig.cost} (have $${this.money})`, mousePos.x - 60, mousePos.y - towerConfig.height / 2 - 10, 12, 'red');
+        }
+    }
+
+    renderSelectedTowerPanel() {
+        if (!this.selectedTower || this.state !== 'playing') {
+            this.upgradeButtonRect = null;
+            return;
+        }
+
+        const tower = this.selectedTower;
+        const r = this.renderer;
+        const ctx = r.ctx;
+
+        // Validate the tower is still alive
+        if (!tower.active) {
+            this.selectedTower = null;
+            this.upgradeButtonRect = null;
+            return;
+        }
+
+        // --- Highlight selected tower ---
+        const tcx = tower.x + tower.width / 2;
+        const tcy = tower.y + tower.height / 2;
+
+        // Selection outline
+        ctx.strokeStyle = '#ffcc00';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(tower.x - 2, tower.y - 2, tower.width + 4, tower.height + 4);
+
+        // Range circle
+        r.drawCircleOutline(tcx, tcy, tower.range, 'rgba(255, 204, 0, 0.25)', 1);
+
+        // --- Info panel (fixed position, right side) ---
+        const panelW = 180;
+        const panelH = 140;
+        const panelX = Config.canvas.width - panelW - 10;
+        const panelY = 50;
+
+        // Panel background
+        r.drawRect(panelX, panelY, panelW, panelH, 'rgba(0, 0, 0, 0.85)');
+        ctx.strokeStyle = '#ffcc00';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(panelX, panelY, panelW, panelH);
+
+        // Tower name & tier
+        const tierStars = '\u2605'.repeat(tower.tier) + '\u2606'.repeat(3 - tower.tier);
+        r.drawText(`${tower.type.toUpperCase()}`, panelX + 10, panelY + 20, 14, 'white');
+        r.drawText(`${tierStars}`, panelX + 10, panelY + 36, 14, '#ffcc00');
+
+        // Stats
+        r.drawText(`DMG: ${tower.damage}`, panelX + 10, panelY + 56, 12, '#ccc');
+        r.drawText(`Range: ${tower.range}`, panelX + 10, panelY + 72, 12, '#ccc');
+        r.drawText(`Rate: ${tower.fireRate}ms`, panelX + 10, panelY + 88, 12, '#ccc');
+
+        // Upgrade section
+        const upgrade = tower.getNextUpgrade();
+        if (upgrade) {
+            const canAfford = this.money >= upgrade.cost;
+            const btnX = panelX + 10;
+            const btnY = panelY + 100;
+            const btnW = panelW - 20;
+            const btnH = 28;
+
+            // Upgrade button
+            const btnColor = canAfford ? 'rgba(0, 150, 0, 0.8)' : 'rgba(100, 100, 100, 0.8)';
+            r.drawRect(btnX, btnY, btnW, btnH, btnColor);
+            ctx.strokeStyle = canAfford ? '#0f0' : '#666';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(btnX, btnY, btnW, btnH);
+
+            const label = `[U] Upgrade $${upgrade.cost}`;
+            r.drawText(label, btnX + 10, btnY + 19, 13, canAfford ? 'white' : '#888');
+
+            // Store button rect for click detection
+            this.upgradeButtonRect = { x: btnX, y: btnY, w: btnW, h: btnH };
+        } else {
+            r.drawText('MAX LEVEL', panelX + 10, panelY + 118, 13, '#ffcc00');
+            this.upgradeButtonRect = null;
         }
     }
 
@@ -815,10 +961,10 @@ class Game extends GameLoop {
         } else if (this.waveInProgress && !this.wavePaused && this.state === 'playing') {
             ctx.drawText('Press SPACE to pause wave', 10, Config.canvas.height - 10, 14, 'yellow');
         }
-        if (this.state === 'playing' && !this.selectedTowerType) {
-            ctx.drawText('Press 1, 2, or 3 to select a tower', Config.canvas.width / 2 - 110, Config.canvas.height - 10, 14, 'cyan');
+        if (this.state === 'playing' && !this.selectedTowerType && !this.selectedTower) {
+            ctx.drawText('Press 1-3 to place | Click tower to upgrade', Config.canvas.width / 2 - 140, Config.canvas.height - 10, 14, 'cyan');
         }
-        ctx.drawText('1-3: Select tower | ESC: Menu', Config.canvas.width - 220, Config.canvas.height - 10, 12, 'gray');
+        ctx.drawText('1-3: Place | Click: Select | U: Upgrade | ESC: Back', Config.canvas.width - 330, Config.canvas.height - 10, 12, 'gray');
 
         // Show placement error message
         if (this.placementError) {
