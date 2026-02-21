@@ -31,6 +31,11 @@ const Config = {
     startingLives: 20,
     startingMoney: 200,
   },
+  difficulty: {
+    easy:   { label: 'Easy',   startingMoney: 400, enemyCountMultiplier: 0.6, description: 'More gold, fewer enemies' },
+    medium: { label: 'Medium', startingMoney: 200, enemyCountMultiplier: 1.0, description: 'Balanced challenge' },
+    hard:   { label: 'Hard',   startingMoney: 100, enemyCountMultiplier: 1.5, description: 'Less gold, more enemies' },
+  },
   ui: {
     healthBar: { height: 5, yOffset: 10, backgroundColor: '#555', foregroundColor: '#6bf' },
     fontFamily: 'Arial',
