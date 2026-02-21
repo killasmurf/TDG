@@ -18,6 +18,15 @@ export default class WaveManager {
         this.eventEmitter = eventEmitter;
         this.enemyKilledListener = null;
         this.enemyReachedEndListener = null;
+        this.enemyMultiplier = 1.0;
+    }
+
+    setEnemyMultiplier(multiplier) {
+        this.enemyMultiplier = multiplier;
+    }
+
+    scaledCount(baseCount) {
+        return Math.max(1, Math.round(baseCount * this.enemyMultiplier));
     }
 
     /**
@@ -33,7 +42,7 @@ export default class WaveManager {
         this.enemiesSpawned = 0;
         this.enemiesRemaining = 0;
         wave.enemies.forEach(e => {
-            this.enemiesRemaining += e.count;
+            this.enemiesRemaining += this.scaledCount(e.count);
         });
         this.isWaveActive = true;
         this.spawnTimer = 0;
@@ -68,7 +77,7 @@ export default class WaveManager {
             if (!this.spawnCounts[type]) this.spawnCounts[type] = 0;
 
             while (
-                this.spawnCounts[type] < waveEnemy.count &&
+                this.spawnCounts[type] < this.scaledCount(waveEnemy.count) &&
                 this.spawnTimer >= this.spawnTimeForType(waveEnemy)
             ) {
                 const path = this.entityManager.path || [];
@@ -105,7 +114,7 @@ export default class WaveManager {
     getEnemiesRemaining() { return this.enemiesRemaining; }
     getTotalEnemiesInWave() {
         const wave = this.waves[this.currentWaveIndex];
-        return wave ? wave.enemies.reduce((sum, e) => sum + e.count, 0) : 0;
+        return wave ? wave.enemies.reduce((sum, e) => sum + this.scaledCount(e.count), 0) : 0;
     }
     isAllWavesComplete() {
         return this.currentWaveIndex >= this.waves.length && !this.isWaveActive;

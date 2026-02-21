@@ -61,6 +61,7 @@ class Game extends GameLoop {
         // Main menu state
         this.mainMenuOptions = [
             { text: 'Play Game', action: 'play' },
+            { text: 'Difficulty', action: 'difficulty' },
             { text: 'Select Map', action: 'selectMap' },
             { text: 'Settings', action: 'settings' },
             { text: 'Exit Game', action: 'exitGame' }
@@ -70,6 +71,9 @@ class Game extends GameLoop {
         this.availableMaps = Game.getAvailableMaps();
         this.showingMapSelector = false;
         this.showingSettings = false;
+        this.showingDifficulty = false;
+        this.difficultyOptions = ['easy', 'medium', 'hard'];
+        this.selectedDifficultyIndex = 1; // default: medium
 
         // Pause menu state
         this.pauseMenuOptions = [
@@ -108,6 +112,8 @@ class Game extends GameLoop {
                 this.handleMapSelectorClick(mousePos);
             } else if (this.showingSettings) {
                 this.handleSettingsClick(mousePos);
+            } else if (this.showingDifficulty) {
+                this.handleDifficultyClick(mousePos);
             } else {
                 this.handleMainMenuClick(mousePos);
             }
@@ -229,6 +235,32 @@ class Game extends GameLoop {
         }
     }
 
+    handleDifficultyClick(mousePos) {
+        const menuX = Config.canvas.width / 2 - 150;
+        const menuY = Config.canvas.height / 2 - 100;
+        const buttonWidth = 300;
+        const buttonHeight = 60;
+        const buttonSpacing = 70;
+
+        for (let i = 0; i < this.difficultyOptions.length; i++) {
+            const buttonY = menuY + 60 + i * buttonSpacing;
+            if (mousePos.x >= menuX && mousePos.x <= menuX + buttonWidth &&
+                mousePos.y >= buttonY && mousePos.y <= buttonY + buttonHeight) {
+                this.settings.difficulty = this.difficultyOptions[i];
+                this.selectedDifficultyIndex = i;
+                this.showingDifficulty = false;
+                return;
+            }
+        }
+
+        // Back button
+        const backButtonY = menuY + 60 + this.difficultyOptions.length * buttonSpacing + 20;
+        if (mousePos.x >= menuX && mousePos.x <= menuX + buttonWidth &&
+            mousePos.y >= backButtonY && mousePos.y <= backButtonY + buttonHeight) {
+            this.showingDifficulty = false;
+        }
+    }
+
     handleKeyPress(event) {
         console.log('[Game] Key pressed:', event.key, 'state:', this.state);
 
@@ -249,6 +281,23 @@ class Game extends GameLoop {
                         break;
                     case 'Escape':
                         this.showingMapSelector = false;
+                        break;
+                }
+            } else if (this.showingDifficulty) {
+                // Difficulty selector keyboard navigation
+                switch (event.key) {
+                    case 'ArrowUp':
+                        this.selectedDifficultyIndex = Math.max(0, this.selectedDifficultyIndex - 1);
+                        break;
+                    case 'ArrowDown':
+                        this.selectedDifficultyIndex = Math.min(this.difficultyOptions.length - 1, this.selectedDifficultyIndex + 1);
+                        break;
+                    case 'Enter':
+                        this.settings.difficulty = this.difficultyOptions[this.selectedDifficultyIndex];
+                        this.showingDifficulty = false;
+                        break;
+                    case 'Escape':
+                        this.showingDifficulty = false;
                         break;
                 }
             } else if (this.showingSettings) {
@@ -521,6 +570,12 @@ class Game extends GameLoop {
             case 'play':
                 this.startGameFromMenu();
                 break;
+            case 'difficulty':
+                this.showingDifficulty = true;
+                // Sync selectedDifficultyIndex with current setting
+                this.selectedDifficultyIndex = this.difficultyOptions.indexOf(this.settings.difficulty);
+                if (this.selectedDifficultyIndex < 0) this.selectedDifficultyIndex = 1;
+                break;
             case 'selectMap':
                 this.showingMapSelector = true;
                 break;
@@ -539,9 +594,19 @@ class Game extends GameLoop {
         this.loadMapAndStart(selectedMap.path);
     }
 
+    applyDifficulty() {
+        const diffConfig = Config.difficulty[this.settings.difficulty];
+        if (!diffConfig) return;
+        this.money = diffConfig.startingMoney;
+        // Scale enemy counts in waves
+        const multiplier = diffConfig.enemyCountMultiplier;
+        this.waveManager.setEnemyMultiplier(multiplier);
+    }
+
     async loadMapAndStart(mapPath) {
         console.log('[Game] Loading map and starting:', mapPath);
         await this.loadMapFromFile(mapPath);
+        this.applyDifficulty();
         this.state = 'menu';
         // Auto-start after brief moment
         setTimeout(() => {
@@ -564,7 +629,8 @@ class Game extends GameLoop {
     restartGame() {
         // Reset game state
         this.lives = Config.game.startingLives;
-        this.money = Config.game.startingMoney;
+        const diffConfig = Config.difficulty[this.settings.difficulty];
+        this.money = diffConfig ? diffConfig.startingMoney : Config.game.startingMoney;
         this.score = 0;
         this.currentWave = 0;
         this.waveInProgress = false;
@@ -572,6 +638,7 @@ class Game extends GameLoop {
         this.selectedTowerType = null;
         this.entityManager.clear();
         this.waveManager.currentWaveIndex = 0;
+        if (diffConfig) this.waveManager.setEnemyMultiplier(diffConfig.enemyCountMultiplier);
         this.state = 'playing';
         // Re-apply current path for enemies
         if (this.pathManager && this.entityManager) {
@@ -997,6 +1064,8 @@ class Game extends GameLoop {
                 this.renderMapSelector();
             } else if (this.showingSettings) {
                 this.renderSettings();
+            } else if (this.showingDifficulty) {
+                this.renderDifficulty();
             } else {
                 this.renderMainMenu();
             }
@@ -1110,9 +1179,10 @@ class Game extends GameLoop {
             ctx.drawText(option.text, textX, buttonY + 32, 18, textColor);
         }
 
-        // Current map info
+        // Current map and difficulty info
         const currentMap = this.availableMaps[this.selectedMapIndex];
-        ctx.drawText(`Selected Map: ${currentMap.name}`, Config.canvas.width / 2 - 80, Config.canvas.height - 80, 14, '#AAA');
+        const diffLabel = Config.difficulty[this.settings.difficulty]?.label || this.settings.difficulty;
+        ctx.drawText(`Map: ${currentMap.name}  |  Difficulty: ${diffLabel}`, Config.canvas.width / 2 - 120, Config.canvas.height - 80, 14, '#AAA');
 
         // Instructions
         ctx.drawText('Use Arrow Keys or Click | Press Enter to select', Config.canvas.width / 2 - 135, Config.canvas.height - 50, 12, 'gray');
@@ -1164,6 +1234,53 @@ class Game extends GameLoop {
 
         // Instructions
         ctx.drawText('Arrow Keys: Navigate | Enter: Select | ESC: Back', Config.canvas.width / 2 - 140, Config.canvas.height - 30, 12, 'gray');
+    }
+
+    renderDifficulty() {
+        const ctx = this.renderer;
+
+        // Background
+        ctx.drawRect(0, 0, Config.canvas.width, Config.canvas.height, 'rgba(0, 0, 0, 0.9)');
+
+        // Title
+        ctx.drawText('SELECT DIFFICULTY', Config.canvas.width / 2 - 130, 100, 32, '#FFD700');
+
+        const menuX = Config.canvas.width / 2 - 150;
+        const menuY = Config.canvas.height / 2 - 100;
+        const buttonWidth = 300;
+        const buttonHeight = 60;
+        const buttonSpacing = 70;
+
+        const diffColors = { easy: '#4a4', medium: '#aa4', hard: '#a44' };
+        const diffSelectedColors = { easy: 'rgba(40,160,40,0.7)', medium: 'rgba(180,160,40,0.7)', hard: 'rgba(180,40,40,0.7)' };
+
+        for (let i = 0; i < this.difficultyOptions.length; i++) {
+            const key = this.difficultyOptions[i];
+            const diff = Config.difficulty[key];
+            const buttonY = menuY + 60 + i * buttonSpacing;
+            const isSelected = this.settings.difficulty === key;
+
+            const buttonColor = isSelected ? diffSelectedColors[key] : 'rgba(50, 50, 50, 0.7)';
+            ctx.drawRect(menuX, buttonY, buttonWidth, buttonHeight, buttonColor);
+            ctx.ctx.strokeStyle = isSelected ? diffColors[key] : '#555';
+            ctx.ctx.lineWidth = 2;
+            ctx.ctx.strokeRect(menuX, buttonY, buttonWidth, buttonHeight);
+
+            const labelColor = isSelected ? 'white' : '#ccc';
+            ctx.drawText(diff.label, menuX + 15, buttonY + 22, 20, labelColor);
+            ctx.drawText(`$${diff.startingMoney} gold  |  ${diff.description}`, menuX + 15, buttonY + 44, 13, isSelected ? '#ddd' : '#888');
+        }
+
+        // Back button
+        const backButtonY = menuY + 60 + this.difficultyOptions.length * buttonSpacing + 20;
+        ctx.drawRect(menuX, backButtonY, buttonWidth, 45, 'rgba(80, 50, 50, 0.6)');
+        ctx.ctx.strokeStyle = '#555';
+        ctx.ctx.lineWidth = 2;
+        ctx.ctx.strokeRect(menuX, backButtonY, buttonWidth, 45);
+        ctx.drawText('Back to Menu', Config.canvas.width / 2 - 60, backButtonY + 28, 16, '#ccc');
+
+        // Instructions
+        ctx.drawText('Arrow Keys: Navigate | Enter: Select | ESC: Back', Config.canvas.width / 2 - 145, Config.canvas.height - 30, 12, 'gray');
     }
 
     renderSettings() {
